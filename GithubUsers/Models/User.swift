@@ -9,23 +9,29 @@
 import Foundation
 
 struct User: Decodable {
-    let displayName: String
-    let reputation: String
-    
+    let id: Int
+    let login: String
+    let avatarUrl: String
+    let notes: String // Empty string = No notes, local property, not in Api
+
     enum CodingKeys: String, CodingKey {
-        case displayName = "display_name"
-        case reputation
+        case id
+        case login
+        case avatarUrl = "avatar_url"
     }
     
-    init(displayName: String, reputation: String) {
-        self.displayName = displayName
-        self.reputation = reputation
+    init(id: Int, login: String, avatarUrl: String, notes: String = "") {
+        self.id = id
+        self.login = login
+        self.avatarUrl = avatarUrl
+        self.notes = notes
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let displayName = try container.decode(String.self, forKey: .displayName)
-        let reputation = try container.decode(Double.self, forKey: .reputation)
-        self.init(displayName: displayName, reputation: String(reputation))
+        let id = try container.decode(Int.self, forKey: .id)
+        let login = try container.decode(String.self, forKey: .login)
+        let avatarUrl = try container.decode(String.self, forKey: .avatarUrl)
+        self.init(id: id, login: login, avatarUrl: avatarUrl)
     }
 }

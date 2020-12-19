@@ -8,100 +8,56 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, AlertCreator {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet var indicatorView: UIActivityIndicatorView!
 
-    private enum CellIdentifiers {
-        static let list = "List"
-    }
+    private var viewModel: UsersViewModel!
 
-    
-    
-    var site: String!
-    
-    private var viewModel: ModeratorsViewModel!
-    
-    private var shouldShowLoadingCell = false
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        indicatorView.color = ColorPalette.RWGreen
-        indicatorView.startAnimating()
-        
-        tableView.isHidden = true
-        tableView.separatorColor = ColorPalette.RWGreen
+        tableView.rowHeight = 50
         tableView.dataSource = self
-        tableView.prefetchDataSource = self
-        
-        let request = ModeratorRequest.from(site: site)
-        viewModel = ModeratorsViewModel(request: request, delegate: self)
-        
-        viewModel.fetchModerators()
+        viewModel = UsersViewModel(delegate: self)
+        viewModel.loadUsers()
     }
 }
 
-extension ModeratorsListViewController: UITableViewDataSource {
+extension MainViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
+}
+
+extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // 1
-        return viewModel.totalCount
+        return viewModel.currentCount + 1 // for indicator row
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifiers.list, for: indexPath) as! ModeratorTableViewCell
-        // 2
-        if isLoadingCell(for: indexPath) {
+        let cell = tableView.dequeueReusableCell(withIdentifier: UsersTableViewCell.CellIdentifier, for: indexPath) as! UsersTableViewCell
+
+        // if this is the last extra row
+        if indexPath.row == viewModel.currentCount {
             cell.configure(with: .none)
         } else {
-            cell.configure(with: viewModel.moderator(at: indexPath.row))
+            cell.configure(with: viewModel.user(at: indexPath.row))
         }
         return cell
     }
 }
 
-extension ModeratorsListViewController: UITableViewDataSourcePrefetching {
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        if indexPaths.contains(where: isLoadingCell) {
-            viewModel.fetchModerators()
-        }
-    }
-}
-
-extension ModeratorsListViewController: ModeratorsViewModelDelegate {
+extension MainViewController: UsersViewModelDelegate {
     func onFetchCompleted(with newIndexPathsToReload: [IndexPath]?) {
-        // 1
-        guard let newIndexPathsToReload = newIndexPathsToReload else {
-            indicatorView.stopAnimating()
-            tableView.isHidden = false
-            tableView.reloadData()
-            return
-        }
-        // 2
-        let indexPathsToReload = visibleIndexPathsToReload(intersecting: newIndexPathsToReload)
-        tableView.reloadRows(at: indexPathsToReload, with: .automatic)
+        tableView.reloadData() // todo
     }
     
     func onFetchFailed(with reason: String) {
-        indicatorView.stopAnimating()
-        
-        let title = "Warning".localizedString
-        let action = UIAlertAction(title: "OK".localizedString, style: .default)
-        displayAlert(with: title , message: reason, actions: [action])
+        let title = "Warning"
+        // TODO retryAction
+        let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
+
+        showAlert(with: title , message: reason, actions: [dismissAction])
     }
 }
-
-private extension ModeratorsListViewController {
-    func isLoadingCell(for indexPath: IndexPath) -> Bool {
-        return indexPath.row >= viewModel.currentCount
-    }
-    
-    func visibleIndexPathsToReload(intersecting indexPaths: [IndexPath]) -> [IndexPath] {
-        let indexPathsForVisibleRows = tableView.indexPathsForVisibleRows ?? []
-        let indexPathsIntersection = Set(indexPathsForVisibleRows).intersection(indexPaths)
-        return Array(indexPathsIntersection)
-    }
-}
-

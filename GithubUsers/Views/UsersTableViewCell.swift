@@ -10,10 +10,41 @@ import UIKit
 
 class UsersTableViewCell: UITableViewCell {
     static let CellIdentifier = "UsersTableViewCell"
-    
+
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var detailsLabel: UILabel!
     @IBOutlet weak var noteImageView: UIImageView!
-    
+    @IBOutlet weak var indicatorView: UIActivityIndicatorView!
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        configure(with: .none)
+    }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        indicatorView.hidesWhenStopped = true
+        indicatorView.color = .purple
+    }
+
+    func configure(with user: User?) {
+        let dataViews: [UIView] = [profileImageView, usernameLabel, detailsLabel, noteImageView]
+        if let user = user {
+            dataViews.forEach { $0.isHidden = false }
+            indicatorView.stopAnimating()
+
+            profileImageView.image = nil // TODO user.avatarUrl
+            usernameLabel?.text = user.login
+            detailsLabel?.text = "..."
+            noteImageView.isHidden = user.notes.isEmpty
+
+        } else {
+            dataViews.forEach { $0.isHidden = true }
+            noteImageView.isHidden = true
+            usernameLabel?.text = ""
+            detailsLabel?.text = ""
+            indicatorView.startAnimating()
+        }
+    }
 }

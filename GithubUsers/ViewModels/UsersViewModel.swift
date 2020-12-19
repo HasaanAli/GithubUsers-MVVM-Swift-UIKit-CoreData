@@ -15,62 +15,64 @@ protocol UsersViewModelDelegate: class {
 
 final class UsersViewModel {
     private weak var delegate: UsersViewModelDelegate?
-    
+
     private var users: [User] = []
-    private var currentPage = 1
-    private var total = 0
     private var isFetchInProgress = false
+
+    // TODO DB client TODO
+    let client = GithubUsersClient()
     
-    let client = StackExchangeClient()
-    let request: UserRequest
-    
-    init(request: UserRequest, delegate: UsersViewModelDelegate) {
-        self.request = request
+    init(delegate: UsersViewModelDelegate) {
         self.delegate = delegate
     }
-    
-    var totalCount: Int {
-        return total
-    }
-    
+
     var currentCount: Int {
         return users.count
     }
-    
+
+    var maxUserId: Int {
+        return users.last?.id ?? 0
+    }
+
     func user(at index: Int) -> User {
         return users[index]
     }
-    
-    func fetchUsers() {
-        // 1
+
+    func loadUsers() {
+        loadUsersFromDatabase()
+        fetchUsersFromAPI()
+    }
+
+    private func loadUsersFromDatabase() {
+        //TODO first load from DB
+    }
+
+    private func fetchUsersFromAPI() {
+        // if already in progress, exit early
         guard !isFetchInProgress else {
             return
         }
-        
-        // 2
+        // set in progress
         isFetchInProgress = true
-        
-        client.fetchUsers(with: request, page: currentPage) { result in
+
+        let lastMaxUserId = maxUserId
+        client.fetchUsers(since: lastMaxUserId) { result in
             switch result {
-            // 3
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.isFetchInProgress = false
-                    self.delegate?.onFetchFailed(with: error.reason)
+                    self.delegate?.onFetchFailed(with: error.description)
                 }
-            // 4
-            case .success(let response):
+
+            case .success(let newUsers):
+                //TODO save to db
                 DispatchQueue.main.async {
-                    // 1
-                    self.currentPage += 1
                     self.isFetchInProgress = false
-                    // 2
-                    self.total = response.total
-                    self.users.append(contentsOf: response.users)
-                    
-                    // 3
-                    if response.page > 1 {
-                        let indexPathsToReload = self.calculateIndexPathsToReload(from: response.users)
+                    //let newUsers = newUsers
+                    self.users.append(contentsOf: newUsers)
+            
+                    if self.maxUserId > lastMaxUserId {
+                        let indexPathsToReload = self.calculateIndexPathsToReload(from: newUsers)
                         self.delegate?.onFetchCompleted(with: indexPathsToReload)
                     } else {
                         self.delegate?.onFetchCompleted(with: .none)
