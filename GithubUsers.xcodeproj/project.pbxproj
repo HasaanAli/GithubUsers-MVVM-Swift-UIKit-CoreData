@@ -25,6 +25,7 @@
 		053FE90E258DB10D00A1ACC3 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE90D258DB10D00A1ACC3 /* Result.swift */; };
 		053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */; };
 		053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE912258DD87400A1ACC3 /* AlertCreator.swift */; };
+		053FE916258F3E5B00A1ACC3 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE915258F3E5B00A1ACC3 /* ImageCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		053FE90D258DB10D00A1ACC3 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseError.swift; sourceTree = "<group>"; };
 		053FE912258DD87400A1ACC3 /* AlertCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCreator.swift; sourceTree = "<group>"; };
+		053FE915258F3E5B00A1ACC3 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 		05376412258D18BD001E028E /* GithubUsers */ = {
 			isa = PBXGroup;
 			children = (
+				053FE914258F3E4C00A1ACC3 /* Persistence */,
 				053FE8F9258DA1F600A1ACC3 /* LaunchScreen.storyboard */,
 				05376413258D18BD001E028E /* AppDelegate.swift */,
 				053FE8F8258D302B00A1ACC3 /* Networking */,
@@ -204,6 +207,14 @@
 				053FE903258DA6D200A1ACC3 /* User.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		053FE914258F3E4C00A1ACC3 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				053FE915258F3E5B00A1ACC3 /* ImageCache.swift */,
+			);
+			path = Persistence;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -342,6 +353,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				05376446258D2327001E028E /* UsersTableViewCell.swift in Sources */,
+				053FE916258F3E5B00A1ACC3 /* ImageCache.swift in Sources */,
 				0537641C258D18BE001E028E /* GithubUsers.xcdatamodeld in Sources */,
 				053FE90C258DB07500A1ACC3 /* HTTPURLResponse.swift in Sources */,
 				053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */,

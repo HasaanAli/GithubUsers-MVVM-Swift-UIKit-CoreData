@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import UIKit
 
 struct User: Decodable {
     let id: Int
     let login: String
     let avatarUrl: String
     let notes: String // Empty string = No notes, local property, not in Api
+    var image: UIImage? = nil // initially nil, will be set outside
 
     enum CodingKeys: String, CodingKey {
         case id

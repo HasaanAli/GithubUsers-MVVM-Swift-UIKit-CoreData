@@ -35,13 +35,25 @@ final class GithubUsersClient {
             }
             
             // Check decoding error & callback with failure
-            guard let decodedResponse = try? JSONDecoder().decode([User].self, from: data) else {
+            guard let users = try? JSONDecoder().decode([User].self, from: data) else {
                 completion(Result.failure(DataResponseError.decoding))
                 return
             }
-            
+
             // Callback with Success
-            completion(Result.success(decodedResponse))
+            completion(Result.success(users))
         }).resume()
+    }
+
+    func fetchImage(urlString: String, completion: @escaping (Data) -> Void) {
+        let url: URL = URL(string: urlString)!
+        let task = session.downloadTask(with: url, completionHandler: { (location, response, error) -> Void in
+            if let imageData = try? Data(contentsOf: url) {
+                completion(imageData)
+            } else {
+                print("fetchImage download task: No data for image")
+            }
+        })
+        task.resume()
     }
 }

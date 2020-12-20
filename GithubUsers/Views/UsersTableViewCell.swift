@@ -29,22 +29,23 @@ class UsersTableViewCell: UITableViewCell {
     }
 
     func configure(with user: User?) {
-        let dataViews: [UIView] = [profileImageView, usernameLabel, detailsLabel, noteImageView]
-        if let user = user {
-            dataViews.forEach { $0.isHidden = false }
-            indicatorView.stopAnimating()
+        let dataViews: [UIView] = [profileImageView, usernameLabel, detailsLabel]
 
-            profileImageView.image = nil // TODO user.avatarUrl
-            usernameLabel?.text = user.login
-            detailsLabel?.text = "..."
-            noteImageView.isHidden = user.notes.isEmpty
-
-        } else {
+        guard let user = user else {
             dataViews.forEach { $0.isHidden = true }
-            noteImageView.isHidden = true
+            profileImageView.image = nil // TODO user.avatarUrl
             usernameLabel?.text = ""
             detailsLabel?.text = ""
+            noteImageView.isHidden = true
             indicatorView.startAnimating()
+            return
         }
+
+        profileImageView.image = user.image
+        usernameLabel?.text = user.login
+        detailsLabel?.text = "..."
+        noteImageView.isHidden = user.notes.isEmpty
+        indicatorView.stopAnimating()
+        dataViews.forEach { $0.isHidden = false }
     }
 }

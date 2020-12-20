@@ -42,7 +42,8 @@ extension MainViewController: UITableViewDataSource {
         if indexPath.row == viewModel.currentCount {
             cell.configure(with: .none)
         } else {
-            cell.configure(with: viewModel.user(at: indexPath.row))
+            let user = viewModel.user(at: indexPath.row)
+            cell.configure(with: user)
         }
         return cell
     }
@@ -50,14 +51,18 @@ extension MainViewController: UITableViewDataSource {
 
 extension MainViewController: UsersViewModelDelegate {
     func onFetchCompleted(with newIndexPathsToReload: [IndexPath]?) {
-        tableView.reloadData() // todo
+        tableView.reloadData() // TODO reload rows
+        viewModel.loadImages(forUsersAtIndexPaths: newIndexPathsToReload!)
     }
-    
+
+    func onImageReady(at indexPath: IndexPath) {
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
+
     func onFetchFailed(with reason: String) {
         let title = "Warning"
         // TODO retryAction
         let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
-
         showAlert(with: title , message: reason, actions: [dismissAction])
     }
 }
