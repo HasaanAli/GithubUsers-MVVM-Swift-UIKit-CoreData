@@ -26,6 +26,7 @@
 		053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */; };
 		053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE912258DD87400A1ACC3 /* AlertCreator.swift */; };
 		053FE916258F3E5B00A1ACC3 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE915258F3E5B00A1ACC3 /* ImageCache.swift */; };
+		053FE918258F9CC300A1ACC3 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseError.swift; sourceTree = "<group>"; };
 		053FE912258DD87400A1ACC3 /* AlertCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCreator.swift; sourceTree = "<group>"; };
 		053FE915258F3E5B00A1ACC3 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				053FE915258F3E5B00A1ACC3 /* ImageCache.swift */,
+				053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -359,6 +362,7 @@
 				053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */,
 				053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */,
 				053FE906258DA7D000A1ACC3 /* GithubUsersClient.swift in Sources */,
+				053FE918258F9CC300A1ACC3 /* CoreDataManager.swift in Sources */,
 				053FE904258DA6D200A1ACC3 /* User.swift in Sources */,
 				05376416258D18BE001E028E /* MainViewController.swift in Sources */,
 				053FE908258DA8B600A1ACC3 /* URLRequest+Encode.swift in Sources */,

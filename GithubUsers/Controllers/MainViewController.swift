@@ -21,7 +21,6 @@ class MainViewController: UIViewController, AlertCreator {
         tableView.dataSource = self
         tableView.delegate = self
         viewModel = UsersViewModel(delegate: self)
-        viewModel.loadUsers()
     }
 }
 
@@ -32,7 +31,7 @@ extension MainViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == viewModel.currentCount { //last row with indicator
-            viewModel.loadUsers()
+            viewModel.loadData()
         }
     }
 }
@@ -57,9 +56,20 @@ extension MainViewController: UITableViewDataSource {
 }
 
 extension MainViewController: UsersViewModelDelegate {
-    func onFetchCompleted(with newIndexPathsToReload: [IndexPath]?) {
-        tableView.reloadData() // TODO reload rows
-        viewModel.loadImages(forUsersAtIndexPaths: newIndexPathsToReload!)
+    func onFetchFromDBCompleted() {
+        tableView.reloadData()
+        //TODO: check & fetch missing db images
+    }
+
+    func onFetchFromApiCompleted(with newIndexPathsToReload: [IndexPath]?) {
+        if let newIndexPathsToReload = newIndexPathsToReload {
+//            tableView.reloadRows(at: newIndexPathsToReload, with: .automatic)
+            tableView.reloadData()
+            viewModel.downloadImages(forUsersAtIndexPaths: newIndexPathsToReload)
+        } else {
+            tableView.reloadData()
+            //TODO viewModel.loadImagesFromCacheThenApi
+        }
     }
 
     func onImageReady(at indexPath: IndexPath) {

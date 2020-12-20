@@ -6,11 +6,11 @@
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 protocol UsersViewModelDelegate: class {
-    func onFetchCompleted(with newIndexPathsToReload: [IndexPath]?)
+    func onFetchFromDBCompleted()
+    func onFetchFromApiCompleted(with newIndexPathsToReload: [IndexPath]?)
     func onImageReady(at indexPath: IndexPath)
     func onFetchFailed(with reason: String)
 }
@@ -21,7 +21,7 @@ final class UsersViewModel {
     private var users: [User] = []
     private var isFetchInProgress = false
 
-    // TODO DB client TODO
+    let coredataManager = CoreDataManager.shared
     let apiClient = GithubUsersClient()
     let imageCache = ImageCache.shared
     
@@ -41,16 +41,17 @@ final class UsersViewModel {
         return users[index]
     }
 
-    func loadUsers() {
-        loadUsersFromDatabase()
-        fetchUsersFromAPI()
+    func loadData() {
+        // load from database first time when users array is empty
+        if users.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
+            self.users = dbUsers
+            delegate?.onFetchFromDBCompleted()
+        } else { // db gave nil or zero records
+            loadUsersFromAPI()
+        }
     }
 
-    private func loadUsersFromDatabase() {
-        //TODO first load from DB
-    }
-
-    private func fetchUsersFromAPI() {
+    private func loadUsersFromAPI() {
         // if already in progress, exit early
         guard !isFetchInProgress else {
             return
@@ -69,61 +70,39 @@ final class UsersViewModel {
                 }
 
             case .success(let newUsers):
-
-                // TODO save to db
                 DispatchQueue.main.async {
                     self.isFetchInProgress = false
-                    //let newUsers = newUsers
+                    self.coredataManager.insert(users: newUsers)
                     self.users.append(contentsOf: newUsers)
                     if self.maxUserId > lastMaxUserId {
                         let indexPathsToReload = self.calculateIndexPathsToReload(from: newUsers)
-                        self.delegate?.onFetchCompleted(with: indexPathsToReload)
+                        self.delegate?.onFetchFromApiCompleted(with: indexPathsToReload)
                     } else {
-                        self.delegate?.onFetchCompleted(with: .none)
+                        self.delegate?.onFetchFromApiCompleted(with: .none)
                     }
                 }
             }
         }
     }
 
-//     func loadImagesFromCache(forUsers users: [User]) {
-//        for i in 0..<users.count {
-//            var user = users[i]
-//            if let avatar = imageCache.image(forKey: user.avatarUrl) {
-//                user.image = avatar
-//                self.delegate?.onImageReady(with: ...)
-//            }
-//
-//        }
-//    }
-
-    /// Loads images from local cache or from api.
-    func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
+    /// Loads images from api.
+    func downloadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            let user = self.users[indexPath.row]
+            var user = self.users[indexPath.row]
             let avatarUrl = user.avatarUrl
-            if let avatar = imageCache.image(forKey: avatarUrl) { // available in cache
-                users[indexPath.row].image = avatar
-                self.delegate?.onImageReady(at: indexPath)
-            } else { // fetch from api
-                apiClient.fetchImage(urlString: avatarUrl) { imageData in
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        if let image = UIImage(data: imageData) {
-                            self.users[indexPath.row].image = image
-                            self.imageCache.save(image: image, forKey: avatarUrl)
-                            self.delegate?.onImageReady(at: indexPath)
-                        }
-                    })
+            apiClient.fetchImage(urlString: avatarUrl) { imageData in
+                if let image = UIImage(data: imageData) {
+                    user.image = image
+                    self.users[indexPath.row] = user
+                    self.imageCache.save(image: image, forKey: avatarUrl)
+                    DispatchQueue.main.async {
+                        self.coredataManager.update(user: user) // update user image in db
+                        self.delegate?.onImageReady(at: indexPath)
+                    }
                 }
             }
         }
     }
-    
-//    private func calculateRange(from newUsers: [User]) -> Range<Int> {
-//        let startIndex = users.count - newUsers.count
-//        let endIndex = startIndex + newUsers.count
-//        return (startIndex..<endIndex)
-//    }
 
     private func calculateIndexPathsToReload(from newUsers: [User]) -> [IndexPath] {
         let startIndex = users.count - newUsers.count

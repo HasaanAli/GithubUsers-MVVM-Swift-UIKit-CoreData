@@ -6,7 +6,6 @@
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 class ImageCache {
