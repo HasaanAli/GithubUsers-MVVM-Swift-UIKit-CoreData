@@ -19,6 +19,7 @@ class MainViewController: UIViewController, AlertCreator {
         super.viewDidLoad()
         tableView.rowHeight = 50
         tableView.dataSource = self
+        tableView.delegate = self
         viewModel = UsersViewModel(delegate: self)
         viewModel.loadUsers()
     }
@@ -27,6 +28,12 @@ class MainViewController: UIViewController, AlertCreator {
 extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
+    }
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == viewModel.currentCount { //last row with indicator
+            viewModel.loadUsers()
+        }
     }
 }
 
