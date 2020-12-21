@@ -82,7 +82,6 @@ class CoreDataManager {
             let userEntities = try managedContext.fetch(fetchRequest)
             var users = [User]()
             for userEntity in userEntities {
-                print(userEntity)
                 let id = userEntity.value(forKey: "id") as? Int
                 let login = userEntity.value(forKey: "login") as? String
                 let avatarUrl = userEntity.value(forKey: "avatarUrl") as? String

@@ -19,10 +19,10 @@ final class GithubUsersClient {
         self.session = session
     }
     
-    func fetchUsers(since: Int, completion: @escaping (Result<[User], DataResponseError>) -> Void) {
-        NSLog("fetchUsers since: %d", since)
+    func fetchUsers(since: Int, perPage: Int, completion: @escaping (Result<[User], DataResponseError>) -> Void) {
+        NSLog("fetchUsers since: %d, perPage: %d", since, perPage)
         let urlRequest = URLRequest(url: usersURL)
-        let parameters: [String : String] = ["per_page":"50", "since": "\(since)"]
+        let parameters: [String : String] = ["per_page": "\(perPage)", "since": "\(since)"]
         let encodedURLRequest = urlRequest.encode(with: parameters)
         
         session.dataTask(with: encodedURLRequest, completionHandler: { data, response, error in

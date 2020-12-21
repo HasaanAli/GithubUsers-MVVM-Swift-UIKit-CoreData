@@ -17,16 +17,17 @@ protocol UsersViewModelDelegate: class {
 
 final class UsersViewModel {
     private weak var delegate: UsersViewModelDelegate?
-
+    private var apiPageSize: Int // max 100
     private var users: [User] = []
     private var isFetchInProgress = false
 
     let coredataManager = CoreDataManager.shared
     let apiClient = GithubUsersClient()
     let imageCache = ImageCache.shared
-    
-    init(delegate: UsersViewModelDelegate) {
+
+    init(delegate: UsersViewModelDelegate, apiPageSize: Int) {
         self.delegate = delegate
+        self.apiPageSize = apiPageSize
     }
 
     var currentCount: Int {
@@ -61,7 +62,7 @@ final class UsersViewModel {
         isFetchInProgress = true
 
         let lastMaxUserId = maxUserId
-        apiClient.fetchUsers(since: lastMaxUserId) { result in
+        apiClient.fetchUsers(since: lastMaxUserId, perPage: apiPageSize) { result in
             switch result {
             case .failure(let error):
                 DispatchQueue.main.async {
