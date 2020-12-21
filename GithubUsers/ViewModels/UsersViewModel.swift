@@ -17,8 +17,8 @@ protocol UsersViewModelDelegate: class {
 
 final class UsersViewModel {
     private weak var delegate: UsersViewModelDelegate?
-    private var apiPageSize: Int // max 100
-    private var users: [User] = []
+    private var apiPageSize: Int
+    private var cellViewModels: [UserCellViewModelProtocol] = []
     private var isFetchInProgress = false
 
     let coredataManager = CoreDataManager.shared
@@ -31,21 +31,22 @@ final class UsersViewModel {
     }
 
     var currentCount: Int {
-        return users.count
+        return cellViewModels.count
     }
 
     var maxUserId: Int {
-        return users.last?.id ?? 0
+        return cellViewModels.last?.userP.id ?? 0
     }
 
-    func user(at index: Int) -> User {
-        return users[index]
+    func cellViewModel(at index: Int) -> UserCellViewModelProtocol {
+        return cellViewModels[index]
     }
 
     func loadData() {
-        // load from database first time when users array is empty
-        if users.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
-            self.users = dbUsers
+        // load from database first time when cellViewModels array is empty
+        if cellViewModels.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
+            let defaultUserViewModels = dbUsers.map { DefaultUserViewModel(user: $0) }
+            self.cellViewModels.append(contentsOf: defaultUserViewModels as [UserCellViewModelProtocol])
             delegate?.onFetchFromDBCompleted()
         } else { // db gave nil or zero records
             loadUsersFromAPI()
@@ -74,9 +75,10 @@ final class UsersViewModel {
                 DispatchQueue.main.async {
                     self.isFetchInProgress = false
                     self.coredataManager.insert(users: newUsers)
-                    self.users.append(contentsOf: newUsers)
+                    let newDefaultUserViewModels = newUsers.map { DefaultUserViewModel(user: $0)} as [UserCellViewModelProtocol]
+                    self.cellViewModels.append(contentsOf: newDefaultUserViewModels)
                     if self.maxUserId > lastMaxUserId {
-                        let indexPathsToReload = self.calculateIndexPathsToReload(from: newUsers)
+                        let indexPathsToReload = self.calculateIndexPathsToReload(from: newUsers.count)
                         self.delegate?.onFetchFromApiCompleted(with: indexPathsToReload)
                     } else {
                         self.delegate?.onFetchFromApiCompleted(with: .none)
@@ -89,12 +91,12 @@ final class UsersViewModel {
     /// Loads images from api.
     func downloadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            var user = self.users[indexPath.row]
+            var user = cellViewModel(at: indexPath.row).userP as! User
             let avatarUrl = user.avatarUrl
             apiClient.fetchImage(urlString: avatarUrl) { imageData in
                 if let image = UIImage(data: imageData) {
                     user.image = image
-                    self.users[indexPath.row] = user
+                    self.cellViewModels[indexPath.row] = DefaultUserViewModel(user: user)
                     self.imageCache.save(image: image, forKey: avatarUrl)
                     DispatchQueue.main.async {
                         self.coredataManager.update(user: user) // update user image in db
@@ -105,9 +107,9 @@ final class UsersViewModel {
         }
     }
 
-    private func calculateIndexPathsToReload(from newUsers: [User]) -> [IndexPath] {
-        let startIndex = users.count - newUsers.count
-        let endIndex = startIndex + newUsers.count
+    private func calculateIndexPathsToReload(from newUsersCount: Int) -> [IndexPath] {
+        let startIndex = cellViewModels.count - newUsersCount
+        let endIndex = startIndex + newUsersCount
         return (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
     }
 }

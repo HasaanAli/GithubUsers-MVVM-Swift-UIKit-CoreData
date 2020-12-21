@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  UsersViewController.swift
 //  GithubUsers
 //
 //  Created by Hasaan Ali on 12/18/20.
@@ -8,54 +8,60 @@
 
 import UIKit
 
-class MainViewController: UIViewController, AlertCreator {
+class UsersViewController: UIViewController, AlertCreator {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
 
-    private var viewModel: UsersViewModel!
+    /// View controller's view model.
+    private var vcViewModel: UsersViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        searchBar.delegate = self
+        searchBar.showsCancelButton = true
+
+        // Register non-default cell classes
+        tableView.register(LoadingTableViewCell.self, forCellReuseIdentifier: LoadingTableViewCell.CellIdentifier)
+
         tableView.rowHeight = 50
         tableView.dataSource = self
         tableView.delegate = self
-        viewModel = UsersViewModel(delegate: self)
+        vcViewModel = UsersViewModel(delegate: self, apiPageSize: 100)
     }
 }
 
-extension MainViewController: UITableViewDelegate {
+extension UsersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
+
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == viewModel.currentCount { //last row with indicator
-            viewModel.loadData()
+        if indexPath.row == vcViewModel.currentCount { //last row with indicator
+            vcViewModel.loadData()
         }
     }
 }
 
-extension MainViewController: UITableViewDataSource {
+extension UsersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.currentCount + 1 // for indicator row
+        return vcViewModel.currentCount + 1 // for activity indicator row
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: UsersTableViewCell.CellIdentifier, for: indexPath) as! UsersTableViewCell
+        // LoadingTableViewCell doesn't conform to UsersTableViewCellProtocol, because it only has a UIActivityIndicator
 
-        // if this is the last extra row
-        if indexPath.row == viewModel.currentCount {
-            cell.configure(with: .none)
+        if indexPath.row == vcViewModel.currentCount { // if its the activity indicator row
+            return tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.CellIdentifier, for: indexPath) as! LoadingTableViewCell
         } else {
-            let user = viewModel.user(at: indexPath.row)
-            cell.configure(with: user)
+            let cellViewModel = vcViewModel.cellViewModel(at: indexPath.row)
+            return cellViewModel.cellForTableView(tableView: tableView, atIndexPath: indexPath)
         }
-        return cell
     }
 }
 
-extension MainViewController: UsersViewModelDelegate {
+extension UsersViewController: UsersViewModelDelegate {
     func onFetchFromDBCompleted() {
         tableView.reloadData()
         //TODO: check & fetch missing db images
@@ -65,7 +71,7 @@ extension MainViewController: UsersViewModelDelegate {
         if let newIndexPathsToReload = newIndexPathsToReload {
 //            tableView.reloadRows(at: newIndexPathsToReload, with: .automatic)
             tableView.reloadData()
-            viewModel.downloadImages(forUsersAtIndexPaths: newIndexPathsToReload)
+            vcViewModel.downloadImages(forUsersAtIndexPaths: newIndexPathsToReload)
         } else {
             tableView.reloadData()
             //TODO viewModel.loadImagesFromCacheThenApi
@@ -82,4 +88,11 @@ extension MainViewController: UsersViewModelDelegate {
         let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
         showAlert(with: title , message: reason, actions: [dismissAction])
     }
+}
+
+extension UsersViewController: UISearchBarDelegate {
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        super
+//        viewModel.filterData(by: searchText)
+//    }
 }
