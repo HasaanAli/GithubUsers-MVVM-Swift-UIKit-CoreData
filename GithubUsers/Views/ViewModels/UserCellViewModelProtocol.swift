@@ -9,6 +9,6 @@
 import UIKit
 
 protocol UserCellViewModelProtocol {
-    var userP: UserProtocol { get }
+    var userP: UserProtocol { get set }
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell
 }

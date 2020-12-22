@@ -1,5 +1,5 @@
 //
-//  UsersTableViewCell.swift
+//  DefaultUserTableViewCell.swift
 //  GithubUsers
 //
 //  Created by Hasaan Ali on 12/18/20.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-class UsersTableViewCell: UITableViewCell, UserTableViewCellProtocol {
-    let tag2 = "UsersTableViewCell-" // TODO think of better name other than tag
-    static let CellIdentifier = "UsersTableViewCell"
+class DefaultUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
+    let tag2 = "DefaultUserTableViewCell-" // TODO think of better name other than tag
+    static let CellIdentifier = "DefaultUserTableViewCell"
 
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var usernameLabel: UILabel!

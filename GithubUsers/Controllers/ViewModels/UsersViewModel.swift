@@ -13,6 +13,7 @@ protocol UsersViewModelDelegate: class {
     func onCellViewModelsUpdated(at indexPaths: [IndexPath])
     func onImageReady(at indexPath: IndexPath)
     func onLoadFailed(with reason: String)
+    func onNoDataChanged()
 }
 
 ///View model for UsersViewController.
@@ -55,6 +56,9 @@ final class UsersViewModel {
                 case let notesUser as NotesUser:
                     cellViewModels.append(NotesUserCellViewModel(notesUser: notesUser))
                     newViewModelsCount += 1
+                case let invertedUser as InvertedUser:
+                    cellViewModels.append(InvertedUserCellViewModel(invertedUser: invertedUser))
+                    newViewModelsCount += 1
                 default:
                     NSLog("UsersViewModel - loadData() Error: Failed dbUser switch cast as one of concrete types")
                 }
@@ -83,20 +87,37 @@ final class UsersViewModel {
                     self.delegate?.onLoadFailed(with: error.description)
                 }
             case .success(let newUsers):
-                DispatchQueue.main.async {
-                    self.isFetchInProgress = false
-                    if newUsers.count > 0 { // we got new data
-                        self.coredataManager.insert(users: newUsers) // TODO move out of UI thread after separate background write context
-                        let newDefaultUserViewModels = newUsers.map { DefaultUserCellViewModel(user: $0)} as [UserCellViewModelProtocol]
-                        self.cellViewModels.append(contentsOf: newDefaultUserViewModels)
+                self.isFetchInProgress = false
 
-                        self.delegate?.onCellViewModelsChanged()
-                        let newIndexPaths = self.calculateIndexPathsToReload(appendCount: newUsers.count)
-                        self.loadImages(forUsersAtIndexPaths: newIndexPaths)
-                    } else {
-                        NSLog("loadUsersFromApi - success but no new user since=\(lastMaxUserId)")
-                    }
+                guard newUsers.count > 0 else { // we reached end of data
+                    NSLog("loadUsersFromApi - success but no new user since=\(lastMaxUserId)")
+                    self.delegate?.onNoDataChanged()
+                    return
                 }
+                // We got new data
+
+                self.coredataManager.insert(users: newUsers) //Save to db.
+
+                // Create new cell view models
+                //                    var newUserCellViewModels = [UserCellViewModelProtocol]()
+                var i = 0 // for inverted user cell view models
+                for user in newUsers {
+                    if i % 3 == 2 { // make inverted cell view model for every third row
+                        let invertedUser = InvertedUser(id: user.id, login: user.login, avatarUrl: user.avatarUrl, image: user.image)
+                        let invertedUserCellViewModel = InvertedUserCellViewModel(invertedUser: invertedUser)
+                        self.cellViewModels.append(invertedUserCellViewModel)
+                    } else {
+                        let defaultUserCellViewModel = DefaultUserCellViewModel(user: user)
+                        self.cellViewModels.append(defaultUserCellViewModel)
+                    }
+                    i += 1
+                }
+
+                DispatchQueue.main.async {
+                    self.delegate?.onCellViewModelsChanged()
+                }
+                let newIndexPaths = self.calculateIndexPathsToReload(appendCount: newUsers.count)
+                self.loadImages(forUsersAtIndexPaths: newIndexPaths)
             }
         }
     }
@@ -104,15 +125,17 @@ final class UsersViewModel {
     /// Loads images from api.
     func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            var user = cellViewModel(at: indexPath.row).userP as! User
-            let avatarUrl = user.avatarUrl
+            let avatarUrl = cellViewModel(at: indexPath.row).userP.avatarUrl
             apiClient.fetchImage(urlString: avatarUrl) { imageData in
                 if let image = UIImage(data: imageData) {
-                    user.image = image
-                    self.cellViewModels[indexPath.row] = DefaultUserCellViewModel(user: user)
+                    // Find the cellViewModel to update it with the image
+                    var userp = self.cellViewModels[indexPath.row].userP
+                    userp.image = image
+                    self.cellViewModels[indexPath.row].userP = userp //update view model
                     self.imageCache.save(image: image, forKey: avatarUrl)
+                    self.coredataManager.update(userp: userp) // update user image in db
+
                     DispatchQueue.main.async {
-                        self.coredataManager.update(userp: user) // update user image in db
                         self.delegate?.onImageReady(at: indexPath)
                     }
                 }

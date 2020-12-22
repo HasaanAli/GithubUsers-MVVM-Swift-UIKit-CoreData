@@ -12,6 +12,10 @@
 		05204C0B2591B7A600836DA6 /* NotesUserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C0A2591B7A600836DA6 /* NotesUserCellViewModel.swift */; };
 		05204C0D2592240E00836DA6 /* UserCellViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C0C2592240E00836DA6 /* UserCellViewModelProtocol.swift */; };
 		05204C0F2592243300836DA6 /* DefaultUserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C0E2592243300836DA6 /* DefaultUserCellViewModel.swift */; };
+		05204C112592257C00836DA6 /* InvertedUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C102592257C00836DA6 /* InvertedUserTableViewCell.swift */; };
+		05204C13259228A800836DA6 /* InvertedUserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */; };
+		05204C1525922E5A00836DA6 /* InvertedUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C1425922E5A00836DA6 /* InvertedUser.swift */; };
+		05204C1825922F1300836DA6 /* ImageUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C1725922F1300836DA6 /* ImageUtilities.swift */; };
 		05376414258D18BD001E028E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05376413258D18BD001E028E /* AppDelegate.swift */; };
 		05376416258D18BE001E028E /* UsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05376415258D18BE001E028E /* UsersViewController.swift */; };
 		05376419258D18BE001E028E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 05376417258D18BE001E028E /* Main.storyboard */; };
@@ -63,6 +67,10 @@
 		05204C0A2591B7A600836DA6 /* NotesUserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUserCellViewModel.swift; sourceTree = "<group>"; };
 		05204C0C2592240E00836DA6 /* UserCellViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModelProtocol.swift; sourceTree = "<group>"; };
 		05204C0E2592243300836DA6 /* DefaultUserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUserCellViewModel.swift; sourceTree = "<group>"; };
+		05204C102592257C00836DA6 /* InvertedUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertedUserTableViewCell.swift; sourceTree = "<group>"; };
+		05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertedUserCellViewModel.swift; sourceTree = "<group>"; };
+		05204C1425922E5A00836DA6 /* InvertedUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertedUser.swift; sourceTree = "<group>"; };
+		05204C1725922F1300836DA6 /* ImageUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtilities.swift; sourceTree = "<group>"; };
 		05376410258D18BD001E028E /* GithubUsers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GithubUsers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05376413258D18BD001E028E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		05376415258D18BE001E028E /* UsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewController.swift; sourceTree = "<group>"; };
@@ -122,6 +130,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		05204C1625922F0200836DA6 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				05204C1725922F1300836DA6 /* ImageUtilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		05376407258D18BD001E028E = {
 			isa = PBXGroup;
 			children = (
@@ -145,6 +161,7 @@
 		05376412258D18BD001E028E /* GithubUsers */ = {
 			isa = PBXGroup;
 			children = (
+				05204C1625922F0200836DA6 /* Utilities */,
 				053FE914258F3E4C00A1ACC3 /* Persistence */,
 				053FE8F9258DA1F600A1ACC3 /* LaunchScreen.storyboard */,
 				05376413258D18BD001E028E /* AppDelegate.swift */,
@@ -186,6 +203,7 @@
 				05BFE59225918E3600BF4E48 /* NotesUserTableViewCell.swift */,
 				05BFE58A2590758E00BF4E48 /* LoadingTableViewCell.swift */,
 				053FE912258DD87400A1ACC3 /* AlertCreator.swift */,
+				05204C102592257C00836DA6 /* InvertedUserTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -238,6 +256,7 @@
 				053FE903258DA6D200A1ACC3 /* User.swift */,
 				05204C062591AF4200836DA6 /* NotesUser.swift */,
 				05BFE5902590EB7B00BF4E48 /* UserDetails.swift */,
+				05204C1425922E5A00836DA6 /* InvertedUser.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -257,6 +276,7 @@
 				05204C0C2592240E00836DA6 /* UserCellViewModelProtocol.swift */,
 				05204C0E2592243300836DA6 /* DefaultUserCellViewModel.swift */,
 				05204C0A2591B7A600836DA6 /* NotesUserCellViewModel.swift */,
+				05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -397,15 +417,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				05204C092591AF4E00836DA6 /* UserProtocol.swift in Sources */,
+				05204C112592257C00836DA6 /* InvertedUserTableViewCell.swift in Sources */,
 				05BFE58D2590B1E300BF4E48 /* UserDetailsViewController.swift in Sources */,
 				05376446258D2327001E028E /* UsersTableViewCell.swift in Sources */,
 				05BFE58F2590D86D00BF4E48 /* UserDetailsViewModel.swift in Sources */,
+				05204C1525922E5A00836DA6 /* InvertedUser.swift in Sources */,
 				053FE916258F3E5B00A1ACC3 /* ImageCache.swift in Sources */,
 				05204C072591AF4200836DA6 /* NotesUser.swift in Sources */,
 				0537641C258D18BE001E028E /* GithubUsers.xcdatamodeld in Sources */,
 				053FE90C258DB07500A1ACC3 /* HTTPURLResponse.swift in Sources */,
 				05BFE589259054D700BF4E48 /* UsersViewModel.swift in Sources */,
 				053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */,
+				05204C13259228A800836DA6 /* InvertedUserCellViewModel.swift in Sources */,
+				05204C1825922F1300836DA6 /* ImageUtilities.swift in Sources */,
 				05204C0F2592243300836DA6 /* DefaultUserCellViewModel.swift in Sources */,
 				05BFE58B2590758E00BF4E48 /* LoadingTableViewCell.swift in Sources */,
 				053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */,

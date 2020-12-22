@@ -13,8 +13,19 @@ class CoreDataManager {
     static let sharedInstance = CoreDataManager()
     private init() {}
 
+    /// Gets shared app delegate using UI thread.
+    var appDelegate: UIApplicationDelegate? {
+        var delegate: UIApplicationDelegate? = nil
+        DispatchQueue.main.sync {
+            delegate = UIApplication.shared.delegate
+        }
+        return delegate
+    }
+
+    /// Can be used from UI thread.
     func insert(users: [UserProtocol]) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+        guard let appDelegate = appDelegate as? AppDelegate else {
+            NSLog("")
             return
         }
 
@@ -45,7 +56,7 @@ class CoreDataManager {
 
     func update(userp: UserProtocol) {
         let tag = "CoreDataManager.update(user:) -"
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+        guard let appDelegate = appDelegate as? AppDelegate else {
             NSLog("CoreDataManager.update(user:) - Failed to get app delegate")
             return
         }
@@ -68,6 +79,8 @@ class CoreDataManager {
             switch userp {
             case is User:
                 userEntity?.notes = nil
+            case is InvertedUser:
+                userEntity?.notes = nil
             case let notesUser as NotesUser:
                 userEntity?.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
             default:
@@ -83,7 +96,7 @@ class CoreDataManager {
     }
 
     func fetchAllUsers() -> [UserProtocol]? {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+        guard let appDelegate = appDelegate as? AppDelegate else {
             NSLog("CoreDataManager.fetchAllUsers() - Failed to get app delegate")
             return nil
         }
@@ -94,6 +107,7 @@ class CoreDataManager {
         do {
             let userEntities = try managedContext.fetch(fetchRequest)
             var users = [UserProtocol]()
+            var i = 0 // for inverted users
             for userEntity in userEntities {
                 let id = userEntity.value(forKey: "id") as? Int
                 let login = userEntity.value(forKey: "login") as? String
@@ -102,7 +116,11 @@ class CoreDataManager {
                 let notes = userEntity.value(forKey: "notes") as? String
 
                 if let id = id, let login = login, let avatarUrl = avatarUrl {
-                    if let notes = notes, !notes.isEmpty {
+                    if i % 3 == 2 {
+                        var user = InvertedUser(id: id, login: login, avatarUrl: avatarUrl)
+                        user.image = imageData !=  nil ? UIImage(data: imageData!) : nil
+                        users.append(user)
+                    } else if let notes = notes, !notes.isEmpty {
                         var notesUser = NotesUser(id: id, login: login, avatarUrl: avatarUrl, notes: notes)
                         notesUser.image = imageData !=  nil ? UIImage(data: imageData!) : nil
                         users.append(notesUser)
@@ -112,6 +130,7 @@ class CoreDataManager {
                         users.append(user)
                     }
                 }
+                i += 1
             }
             NSLog("CoreDataManager.fetchAllUsers() Success. Count: \(users.count)")
             return users

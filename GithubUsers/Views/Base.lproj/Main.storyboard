@@ -29,7 +29,7 @@
                                 <rect key="frame" x="8" y="154" width="375" height="650"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="UsersTableViewCell" rowHeight="50" id="xef-oB-D6O" customClass="UsersTableViewCell" customModule="GithubUsers" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="DefaultUserTableViewCell" rowHeight="50" id="xef-oB-D6O" customClass="DefaultUserTableViewCell" customModule="GithubUsers" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="xef-oB-D6O" id="ezr-ug-lUg">
@@ -140,6 +140,57 @@
                                             <outlet property="noteImageView" destination="GM0-GD-So2" id="77V-ct-agd"/>
                                             <outlet property="profileImageView" destination="bgV-7Q-nVY" id="zb6-JX-vQU"/>
                                             <outlet property="usernameLabel" destination="ab2-H6-gf4" id="cR8-JG-GRe"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="0.0" reuseIdentifier="InvertedNotesUserTableViewCell" rowHeight="50" id="MRb-mg-pOU" userLabel="InvertedNotesUserTableViewCell" customClass="InvertedNotesUserTableViewCell" customModule="GithubUsers" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="128" width="375" height="50"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="MRb-mg-pOU" id="ATn-el-kae">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="49.666666666666664"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="pbz-J1-yxr" userLabel="indicatorView">
+                                                    <rect key="frame" x="15.333333333333336" y="15.333333333333336" width="20" height="20"/>
+                                                    <color key="color" red="0.50196081400000003" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                </activityIndicatorView>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MUv-QK-3C8" userLabel="profileImageView">
+                                                    <rect key="frame" x="0.0" y="1" width="50" height="47.666666666666664"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="50" id="Xkb-vE-0Ab"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="some details are like this but who knows what happends next" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GJK-9B-tSY" userLabel="detailsLabel">
+                                                    <rect key="frame" x="65" y="25" width="295" height="20"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="user2003" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4DI-ir-H7P" userLabel="usernameLabel">
+                                                    <rect key="frame" x="65" y="2" width="295" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="4DI-ir-H7P" secondAttribute="trailing" constant="15" id="I9q-8v-ZMs"/>
+                                                <constraint firstItem="pbz-J1-yxr" firstAttribute="centerY" secondItem="MUv-QK-3C8" secondAttribute="centerY" id="L9B-WP-TRk"/>
+                                                <constraint firstItem="GJK-9B-tSY" firstAttribute="leading" secondItem="MUv-QK-3C8" secondAttribute="trailing" constant="15" id="Tnn-gG-npr"/>
+                                                <constraint firstItem="pbz-J1-yxr" firstAttribute="centerX" secondItem="MUv-QK-3C8" secondAttribute="centerX" id="Wcm-CV-Ogp"/>
+                                                <constraint firstItem="4DI-ir-H7P" firstAttribute="top" secondItem="ATn-el-kae" secondAttribute="top" constant="2" id="WtS-ya-p7t"/>
+                                                <constraint firstItem="GJK-9B-tSY" firstAttribute="top" secondItem="4DI-ir-H7P" secondAttribute="bottom" constant="2" id="bG7-2V-Jjm"/>
+                                                <constraint firstItem="4DI-ir-H7P" firstAttribute="leading" secondItem="MUv-QK-3C8" secondAttribute="trailing" constant="15" id="d6R-px-Muc"/>
+                                                <constraint firstItem="MUv-QK-3C8" firstAttribute="leading" secondItem="ATn-el-kae" secondAttribute="leading" id="fA1-zw-pp8"/>
+                                                <constraint firstItem="MUv-QK-3C8" firstAttribute="top" secondItem="ATn-el-kae" secondAttribute="top" constant="1" id="kxU-Ph-2xy"/>
+                                                <constraint firstAttribute="bottom" secondItem="MUv-QK-3C8" secondAttribute="bottom" constant="1" id="ueN-D0-JYo"/>
+                                                <constraint firstAttribute="trailing" secondItem="GJK-9B-tSY" secondAttribute="trailing" constant="15" id="wdy-1v-YyO"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="detailsLabel" destination="GJK-9B-tSY" id="358-Yw-sd0"/>
+                                            <outlet property="indicatorView" destination="pbz-J1-yxr" id="UJK-Hg-X0W"/>
+                                            <outlet property="profileImageView" destination="MUv-QK-3C8" id="K6b-nS-hvd"/>
+                                            <outlet property="usernameLabel" destination="4DI-ir-H7P" id="RvS-CO-Qm8"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>

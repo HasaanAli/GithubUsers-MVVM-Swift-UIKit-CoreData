@@ -28,7 +28,7 @@ class UsersViewController: UIViewController, AlertCreator {
         tableView.rowHeight = 50
         tableView.dataSource = self
         tableView.delegate = self
-        viewModel = UsersViewModel(delegate: self, apiPageSize: 100)
+        viewModel = UsersViewModel(delegate: self, apiPageSize: 30)
     }
 }
 
@@ -62,7 +62,6 @@ extension UsersViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // LoadingTableViewCell doesn't conform to UsersTableViewCellProtocol, because it only has a UIActivityIndicator
-
         if indexPath.row == viewModel.currentCount { // if its the activity indicator row
             return tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.CellIdentifier, for: indexPath) as! LoadingTableViewCell
         } else {
@@ -90,6 +89,10 @@ extension UsersViewController: UsersViewModelDelegate {
         //        // TODO retryAction
         //        let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
         //        showAlert(with: title , message: reason, actions: [dismissAction])
+    }
+
+    func onNoDataChanged() {
+        NSLog("%@ onNoDataChanged", tag2)
     }
 
     func onImageReady(at indexPath: IndexPath) {
