@@ -1,25 +1,22 @@
 //
-//  UsersTableViewCell.swift
+//  NotesUserTableViewCell.swift
 //  GithubUsers
 //
-//  Created by Hasaan Ali on 12/18/20.
+//  Created by Hasaan Ali on 12/22/20.
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
 import UIKit
 
-class UsersTableViewCell: UITableViewCell, UserTableViewCellProtocol {
+class NotesUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
     let tag2 = "UsersTableViewCell-" // TODO think of better name other than tag
-    static let CellIdentifier = "UsersTableViewCell"
+    static let CellIdentifier = "NotesUserTableViewCell"
 
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var detailsLabel: UILabel!
+    @IBOutlet weak var noteImageView: UIImageView!
     @IBOutlet weak var indicatorView: UIActivityIndicatorView!
-
-    lazy var allViews: [UIView] = {
-        return [profileImageView, usernameLabel, detailsLabel, indicatorView]
-    }()
 
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -31,18 +28,19 @@ class UsersTableViewCell: UITableViewCell, UserTableViewCellProtocol {
     }
 
     func reset() {
-        allViews.forEach { $0.isHidden = true }
         profileImageView.image = nil
+        profileImageView.isHidden = true
         usernameLabel?.text = ""
+        usernameLabel.isHidden = true
         detailsLabel?.text = ""
+        detailsLabel.isHidden = true
+        noteImageView.isHidden = true
         indicatorView.stopAnimating()
         indicatorView.hidesWhenStopped = true
     }
 
     func configure(with userp: UserProtocol) {
-        // No need to cast userp to User
-        allViews.forEach { $0.isHidden = false }
-
+        // No need to cast userp as NotesUser as we're not using notes value here.
         if let image = userp.image {
             profileImageView.image = image
             profileImageView.isHidden = false
@@ -54,6 +52,10 @@ class UsersTableViewCell: UITableViewCell, UserTableViewCellProtocol {
         }
 
         usernameLabel?.text = userp.login
+        usernameLabel.isHidden = false
         detailsLabel?.text = "..."
+        detailsLabel.isHidden = false
+        noteImageView.isHidden = false
     }
 }
+

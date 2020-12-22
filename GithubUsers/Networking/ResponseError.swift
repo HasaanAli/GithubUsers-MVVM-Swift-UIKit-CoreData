@@ -6,7 +6,7 @@
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
-enum DataResponseError: Error {
+enum DataResponseError: Error, CustomStringConvertible {
     case network
     case decoding
 

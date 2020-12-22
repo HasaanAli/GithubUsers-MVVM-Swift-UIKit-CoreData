@@ -10,27 +10,29 @@ import CoreData
 import UIKit
 
 class CoreDataManager {
-    static let shared = CoreDataManager()
+    static let sharedInstance = CoreDataManager()
     private init() {}
 
-    func insert(users: [User]) {
+    func insert(users: [UserProtocol]) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
 
         let managedContext = appDelegate.persistentContainer.viewContext
-        for user in users {
+        for userp in users {
             let entity = NSEntityDescription.entity(forEntityName: "UserEntity", in: managedContext)!
             let userObject = NSManagedObject(entity: entity, insertInto: managedContext)
 
-            userObject.setValue(user.id, forKeyPath: "id")
-            userObject.setValue(user.login, forKeyPath: "login")
-            userObject.setValue(user.avatarUrl, forKeyPath: "avatarUrl")
-            if let image = user.image {
+            userObject.setValue(userp.id, forKeyPath: "id")
+            userObject.setValue(userp.login, forKeyPath: "login")
+            userObject.setValue(userp.avatarUrl, forKeyPath: "avatarUrl")
+            if let image = userp.image {
                 let imageData = UIImageJPEGRepresentation(image, 0.7); // 0.7 is JPG quality
                 userObject.setValue(imageData, forKeyPath: "imageData")
             }
-            userObject.setValue(user.notes, forKeyPath: "notes")
+            if let notesUser = userp as? NotesUser {
+                userObject.setValue(notesUser.notes, forKeyPath: "notes")
+            }
         }// end for
 
         do {
@@ -41,37 +43,48 @@ class CoreDataManager {
         }
     }
 
-    func update(user: User) {
+    func update(userp: UserProtocol) {
+        let tag = "CoreDataManager.update(user:) -"
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            NSLog("Failed to get app delegate")
+            NSLog("CoreDataManager.update(user:) - Failed to get app delegate")
             return
         }
 
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "UserEntity")
-        let predicate = NSPredicate(format: "id == %d", user.id)
+        let predicate = NSPredicate(format: "id == %d", userp.id)
         fetchRequest.predicate = predicate
 
         do {
-            let fetchedEntities = try managedContext.fetch(fetchRequest) as! [UserEntity]
+            let fetchedEntities = try managedContext.fetch(fetchRequest) as! [UserEntity] //TODO use guard, no force-cast
             let userEntity = fetchedEntities.first
-            userEntity?.login = user.login
-            userEntity?.avatarUrl = user.avatarUrl
-
-            if let image = user.image {
+            userEntity?.login = userp.login
+            userEntity?.avatarUrl = userp.avatarUrl
+            if let image = userp.image {
                 let imageData = UIImageJPEGRepresentation(image, 0.7); // 0.7 is JPG quality
                 userEntity?.imageData = imageData
             }
 
-            userEntity?.notes = user.notes
+            switch userp {
+            case is User:
+                userEntity?.notes = nil
+            case let notesUser as NotesUser:
+                userEntity?.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
+            default:
+                NSLog("%@ switch userp default case run !!", tag)
+            }
+
             try managedContext.save()
+            NSLog("%@ Success", tag)
         } catch let error as NSError {
-            NSLog("Could not save. \(error), \(error.userInfo)")
+            NSLog("%@ Failed. Error: \(error)", tag)
+            NSLog("error.userInfo = %@", error.userInfo)
         }
     }
 
-    func fetchAllUsers() -> [User]? {
+    func fetchAllUsers() -> [UserProtocol]? {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            NSLog("CoreDataManager.fetchAllUsers() - Failed to get app delegate")
             return nil
         }
 
@@ -80,7 +93,7 @@ class CoreDataManager {
 
         do {
             let userEntities = try managedContext.fetch(fetchRequest)
-            var users = [User]()
+            var users = [UserProtocol]()
             for userEntity in userEntities {
                 let id = userEntity.value(forKey: "id") as? Int
                 let login = userEntity.value(forKey: "login") as? String
@@ -89,11 +102,18 @@ class CoreDataManager {
                 let notes = userEntity.value(forKey: "notes") as? String
 
                 if let id = id, let login = login, let avatarUrl = avatarUrl {
-                    var user = User(id: id, login: login, avatarUrl: avatarUrl, notes: notes ?? "")
-                    user.image = imageData !=  nil ? UIImage(data: imageData!) : nil
-                    users.append(user)
+                    if let notes = notes, !notes.isEmpty {
+                        var notesUser = NotesUser(id: id, login: login, avatarUrl: avatarUrl, notes: notes)
+                        notesUser.image = imageData !=  nil ? UIImage(data: imageData!) : nil
+                        users.append(notesUser)
+                    } else {
+                        var user = User(id: id, login: login, avatarUrl: avatarUrl)
+                        user.image = imageData !=  nil ? UIImage(data: imageData!) : nil
+                        users.append(user)
+                    }
                 }
             }
+            NSLog("CoreDataManager.fetchAllUsers() Success. Count: \(users.count)")
             return users
         } catch let error as NSError {
             NSLog("CoreData - fetchAllUsers error: %@.", error)

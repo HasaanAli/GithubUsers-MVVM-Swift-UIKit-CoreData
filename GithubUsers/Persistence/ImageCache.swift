@@ -12,7 +12,7 @@ class ImageCache {
     private let cache = NSCache<NSString, UIImage>()
     private var observer: NSObjectProtocol!
 
-    static let shared = ImageCache()
+    static let sharedInstance = ImageCache()
 
     private init() {
         // make sure to purge cache on memory pressure

@@ -8,32 +8,7 @@
 
 import UIKit
 
-protocol UserProtocol {
-    var id: Int { get }
+protocol UserTableViewCellProtocol {
+    func configure(with userp: UserProtocol)
+    func reset()
 }
-
-protocol UserCellViewModelProtocol {
-    var userP: UserProtocol { get }
-    func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell
-}
-
-class DefaultUserViewModel: UserCellViewModelProtocol {
-    /// Of type UserProtocol
-    let userP: UserProtocol
-
-    init(user: User) {
-        self.userP = user
-    }
-
-    func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: UsersTableViewCell.CellIdentifier, for: indexPath) as! UsersTableViewCell
-        cell.configure(with: userP as? User)
-        return cell
-    }
-}
-
-//TODO
-//class InvertedUserCellViewModel: UserCellViewModelProtocol {
-//
-//}
-
