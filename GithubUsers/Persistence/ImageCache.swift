@@ -32,4 +32,13 @@ class ImageCache {
     func save(image: UIImage, forKey key: String) {
         cache.setObject(image, forKey: key as NSString)
     }
+
+//TODO: Make Codable
+//    func saveToDisk( withName name: String,using fileManager: FileManager = .default) throws {
+//        let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+//
+//        let fileURL = folderURLs[0].appendingPathComponent(name + ".cache")
+//        let data = try JSONEncoder().encode(cache)
+//        try data.write(to: fileURL)
+//    }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050E4BCD25927266007D01FC /* NetworkAvailabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E4BCC25927266007D01FC /* NetworkAvailabilityView.swift */; };
 		05204C072591AF4200836DA6 /* NotesUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C062591AF4200836DA6 /* NotesUser.swift */; };
 		05204C092591AF4E00836DA6 /* UserProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C082591AF4E00836DA6 /* UserProtocol.swift */; };
 		05204C0B2591B7A600836DA6 /* NotesUserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C0A2591B7A600836DA6 /* NotesUserCellViewModel.swift */; };
@@ -16,6 +17,7 @@
 		05204C13259228A800836DA6 /* InvertedUserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */; };
 		05204C1525922E5A00836DA6 /* InvertedUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C1425922E5A00836DA6 /* InvertedUser.swift */; };
 		05204C1825922F1300836DA6 /* ImageUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C1725922F1300836DA6 /* ImageUtilities.swift */; };
+		05204C1A2592548200836DA6 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C192592548200836DA6 /* NetworkMonitor.swift */; };
 		05376414258D18BD001E028E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05376413258D18BD001E028E /* AppDelegate.swift */; };
 		05376416258D18BE001E028E /* UsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05376415258D18BE001E028E /* UsersViewController.swift */; };
 		05376419258D18BE001E028E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 05376417258D18BE001E028E /* Main.storyboard */; };
@@ -42,6 +44,7 @@
 		05BFE58F2590D86D00BF4E48 /* UserDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BFE58E2590D86D00BF4E48 /* UserDetailsViewModel.swift */; };
 		05BFE5912590EB7B00BF4E48 /* UserDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BFE5902590EB7B00BF4E48 /* UserDetails.swift */; };
 		05BFE59325918E3600BF4E48 /* NotesUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BFE59225918E3600BF4E48 /* NotesUserTableViewCell.swift */; };
+		05C87B78259365FA00398B81 /* Int+isForth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C87B77259365FA00398B81 /* Int+isForth.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +65,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		050E4BCC25927266007D01FC /* NetworkAvailabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityView.swift; sourceTree = "<group>"; };
 		05204C062591AF4200836DA6 /* NotesUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUser.swift; sourceTree = "<group>"; };
 		05204C082591AF4E00836DA6 /* UserProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProtocol.swift; sourceTree = "<group>"; };
 		05204C0A2591B7A600836DA6 /* NotesUserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUserCellViewModel.swift; sourceTree = "<group>"; };
@@ -71,6 +75,7 @@
 		05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertedUserCellViewModel.swift; sourceTree = "<group>"; };
 		05204C1425922E5A00836DA6 /* InvertedUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertedUser.swift; sourceTree = "<group>"; };
 		05204C1725922F1300836DA6 /* ImageUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtilities.swift; sourceTree = "<group>"; };
+		05204C192592548200836DA6 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		05376410258D18BD001E028E /* GithubUsers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GithubUsers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05376413258D18BD001E028E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		05376415258D18BE001E028E /* UsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewController.swift; sourceTree = "<group>"; };
@@ -103,6 +108,7 @@
 		05BFE58E2590D86D00BF4E48 /* UserDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailsViewModel.swift; sourceTree = "<group>"; };
 		05BFE5902590EB7B00BF4E48 /* UserDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetails.swift; sourceTree = "<group>"; };
 		05BFE59225918E3600BF4E48 /* NotesUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUserTableViewCell.swift; sourceTree = "<group>"; };
+		05C87B77259365FA00398B81 /* Int+isForth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+isForth.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				05204C1725922F1300836DA6 /* ImageUtilities.swift */,
+				05C87B77259365FA00398B81 /* Int+isForth.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -204,6 +211,7 @@
 				05BFE58A2590758E00BF4E48 /* LoadingTableViewCell.swift */,
 				053FE912258DD87400A1ACC3 /* AlertCreator.swift */,
 				05204C102592257C00836DA6 /* InvertedUserTableViewCell.swift */,
+				050E4BCC25927266007D01FC /* NetworkAvailabilityView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -226,6 +234,7 @@
 				053FE907258DA8B600A1ACC3 /* URLRequest+Encode.swift */,
 				053FE90B258DB07500A1ACC3 /* HTTPURLResponse.swift */,
 				053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */,
+				05204C192592548200836DA6 /* NetworkMonitor.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -344,20 +353,23 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Hasaan Ali";
 				TargetAttributes = {
 					0537640F258D18BD001E028E = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
 					};
 					05376426258D18BE001E028E = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0537640F258D18BD001E028E;
 					};
 					05376431258D18BE001E028E = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0537640F258D18BD001E028E;
 					};
@@ -423,6 +435,7 @@
 				05BFE58F2590D86D00BF4E48 /* UserDetailsViewModel.swift in Sources */,
 				05204C1525922E5A00836DA6 /* InvertedUser.swift in Sources */,
 				053FE916258F3E5B00A1ACC3 /* ImageCache.swift in Sources */,
+				05204C1A2592548200836DA6 /* NetworkMonitor.swift in Sources */,
 				05204C072591AF4200836DA6 /* NotesUser.swift in Sources */,
 				0537641C258D18BE001E028E /* GithubUsers.xcdatamodeld in Sources */,
 				053FE90C258DB07500A1ACC3 /* HTTPURLResponse.swift in Sources */,
@@ -430,6 +443,7 @@
 				053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */,
 				05204C13259228A800836DA6 /* InvertedUserCellViewModel.swift in Sources */,
 				05204C1825922F1300836DA6 /* ImageUtilities.swift in Sources */,
+				05C87B78259365FA00398B81 /* Int+isForth.swift in Sources */,
 				05204C0F2592243300836DA6 /* DefaultUserCellViewModel.swift in Sources */,
 				05BFE58B2590758E00BF4E48 /* LoadingTableViewCell.swift in Sources */,
 				053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */,
@@ -438,6 +452,7 @@
 				053FE904258DA6D200A1ACC3 /* User.swift in Sources */,
 				05376416258D18BE001E028E /* UsersViewController.swift in Sources */,
 				053FE908258DA8B600A1ACC3 /* URLRequest+Encode.swift in Sources */,
+				050E4BCD25927266007D01FC /* NetworkAvailabilityView.swift in Sources */,
 				053FE91A259047E300A1ACC3 /* UsersTableViewCellProtocol.swift in Sources */,
 				05376414258D18BD001E028E /* AppDelegate.swift in Sources */,
 				053FE90E258DB10D00A1ACC3 /* Result.swift in Sources */,
@@ -513,6 +528,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -520,6 +536,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -547,7 +564,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -570,6 +587,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -577,6 +595,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -598,7 +617,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -615,7 +634,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -629,7 +648,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -644,7 +663,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GithubUsers.app/GithubUsers";
 			};
@@ -660,7 +679,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GithubUsers.app/GithubUsers";
 			};
@@ -675,7 +694,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = GithubUsers;
 			};
@@ -690,7 +709,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = GithubUsers;
 			};
