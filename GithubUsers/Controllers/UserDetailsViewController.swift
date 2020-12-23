@@ -8,8 +8,8 @@
 
 import UIKit
 
-protocol UserDetailsNotesDelegate {
-    func onNotesUpdated(notes: String, at indexPath: IndexPath?)
+protocol UserDetailsViewControllerDelegate {
+    func onNotesUpdated(with notes: String, for cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath)
 }
 
 class UserDetailsViewController: UIViewController {
@@ -23,9 +23,10 @@ class UserDetailsViewController: UIViewController {
     @IBOutlet weak var notesTextView: UITextView!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var networkAvailabilityLabel: NetworkAvailabilityView!
 
     var viewModel: UserDetailsViewModel?
-    var notesDelegate: UserDetailsNotesDelegate?
+    var delegate: UserDetailsViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,22 +34,24 @@ class UserDetailsViewController: UIViewController {
         bioTextView.layer.borderColor = UIColor.gray.cgColor
         notesTextView.layer.borderWidth = 1
         notesTextView.layer.borderColor = UIColor.gray.cgColor
+        networkAvailabilityLabel.isHidden = true
         profileImageView.image = viewModel?.image
         notesTextView.text = viewModel?.notes
         viewModel?.fetchDetails()
+        //TODO: Register with Reachability instance
     }
     
     @IBAction func onSave(_ sender: Any) {
         let newNotes = notesTextView.text ?? ""
         viewModel?.save(notes: newNotes)
-        navigationController?.popViewController(animated: true)
-        notesDelegate?.onNotesUpdated(notes: newNotes, at: viewModel?.indexPath)
+        networkAvailabilityLabel.showWith(customGoodText: "Notes saved.")
+        notesTextView.resignFirstResponder()
     }
 }
 
 extension UserDetailsViewController: UserDetailsViewModelDelegate {
-    func onDetailsSuccess(userDetails: UserDetails) {
-
+    func onLoadDetailsSuccess(userDetails: UserDetails) {
+        networkAvailabilityLabel.isHidden = true
         if let followers = userDetails.followers {
             followersValueLabel.text = "\(followers)"
         } else {
@@ -67,7 +70,29 @@ extension UserDetailsViewController: UserDetailsViewModelDelegate {
         hiddenViews.forEach { $0.isHidden = false }
     }
 
-    func onDetailsFailed(error: DataResponseError) {
+    func onLoadDetailsFailed(error: DataResponseError, retry: @escaping () -> Void) {
+        switch error {
+        case .network:
+            networkAvailabilityLabel.setFor(networkAvailable: false)
+            // TODO: pass retry Reachability
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                retry()
+            }
+        case .decoding:
+            networkAvailabilityLabel.showWith(customBadText: "Details parsing failed. Email at dev@g.com")
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                retry()
+            }
+        }
         NSLog("onDetailsFailed - error: %@", error.description)
+    }
+
+    func onNotesChanged(to notes: String) {
+        guard let viewModel = viewModel else {
+            NSLog("missing UserDetails viewModel")
+            return
+        }
+        delegate?.onNotesUpdated(with: notes, for: viewModel.tappedCellViewModell, at: viewModel.tappedIndexPath)
     }
 }

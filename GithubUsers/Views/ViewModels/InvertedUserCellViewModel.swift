@@ -9,15 +9,17 @@
 import UIKit
 
 class InvertedUserCellViewModel: UserCellViewModelProtocol {
-    var userP: UserProtocol
+    var userp: UserProtocol
+    let unfilteredIndex: Int
 
-    init(invertedUser: InvertedUser) {
-        self.userP = invertedUser
+    init(invertedUser: InvertedUser, index: Int) {
+        self.userp = invertedUser
+        self.unfilteredIndex = index
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: InvertedNotesUserTableViewCell.CellIdentifier, for: indexPath) as! InvertedNotesUserTableViewCell
-        cell.configure(with: userP)
+        let cell = tableView.dequeueReusableCell(withIdentifier: InvertedUserTableViewCell.CellIdentifier, for: indexPath) as! InvertedUserTableViewCell
+        cell.configure(with: userp)
         return cell
     }
 }

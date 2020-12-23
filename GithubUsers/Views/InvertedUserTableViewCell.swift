@@ -1,5 +1,5 @@
 //
-//  InvertedNotesUserTableViewCell.swift
+//  InvertedUserTableViewCell.swift
 //  GithubUsers
 //
 //  Created by Hasaan Ali on 12/22/20.
@@ -8,15 +8,15 @@
 
 import UIKit
 
-class InvertedNotesUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
-    let tag2 = "InvertedNotesUserTableViewCell-" // TODO think of better name other than tag
-    static let CellIdentifier = "InvertedNotesUserTableViewCell"
+class InvertedUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
+    static let CellIdentifier = "InvertedUserTableViewCell"
 
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var detailsLabel: UILabel!
     @IBOutlet weak var indicatorView: UIActivityIndicatorView!
-
+    @IBOutlet weak var noteImageView: UIImageView!
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         reset()
@@ -35,18 +35,22 @@ class InvertedNotesUserTableViewCell: UITableViewCell, UserTableViewCellProtocol
         detailsLabel.isHidden = true
         indicatorView.stopAnimating()
         indicatorView.hidesWhenStopped = true
+        noteImageView.isHidden = true
     }
 
     func configure(with userp: UserProtocol) {
 
-        if let image = userp.image {
-            // Need to cast userp as InvertedUser ONLY for invertedImage
-            if let invertedImage = (userp as? InvertedUser)?.invertedImage {
-                profileImageView.image = invertedImage
-            } else {
-                profileImageView.image = image
-            }
+        guard let invertedUser = userp as? InvertedUser else {
+            // Utilize userp as much as possible
+            profileImageView.image = userp.image // TODO
+            usernameLabel.text = userp.login
+            detailsLabel.text = ""
+            noteImageView.isHidden = true
+            return
+        }
 
+        if let image = invertedUser.invertedImage {
+            profileImageView.image = image
             profileImageView.isHidden = false
             indicatorView.stopAnimating()
         } else {
@@ -55,10 +59,11 @@ class InvertedNotesUserTableViewCell: UITableViewCell, UserTableViewCellProtocol
             indicatorView.startAnimating()
         }
 
-        usernameLabel?.text = userp.login
+        usernameLabel?.text = invertedUser.login
         usernameLabel.isHidden = false
-        detailsLabel?.text = "..."
+        detailsLabel?.text = invertedUser.notes
         detailsLabel.isHidden = false
+        noteImageView.isHidden = invertedUser.notes.isEmpty
     }
 }
 

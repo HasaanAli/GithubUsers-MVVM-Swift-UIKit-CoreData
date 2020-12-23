@@ -10,6 +10,8 @@ import Foundation
 
 final class GithubUsersClient {
     static let sharedInstance = GithubUsersClient()
+    let serialQueue = DispatchQueue(label: "ApiClientQueue")
+    let dispatchGroup = DispatchGroup()
 
     private lazy var usersURL: URL = {
         return URL(string: "http://api.github.com/users")!
@@ -22,65 +24,81 @@ final class GithubUsersClient {
     }
     
     func fetchUsers(since: Int, perPage: Int, completion: @escaping (Result<[User], DataResponseError>) -> Void) {
-        NSLog("fetchUsers since: %d, perPage: %d", since, perPage)
-        let urlRequest = URLRequest(url: usersURL)
-        let parameters: [String : String] = ["per_page": "\(perPage)", "since": "\(since)"]
-        let encodedURLRequest = urlRequest.encode(with: parameters)
-        
-        session.dataTask(with: encodedURLRequest, completionHandler: { data, response, error in
-            guard
-                let httpResponse = response as? HTTPURLResponse,
-                httpResponse.hasSuccessStatusCode,
-                let data = data
-                else {
-                    completion(Result.failure(DataResponseError.network))
-                    return
-            }
-            
-            // Check decoding error & callback with failure
-            guard let users = try? JSONDecoder().decode([User].self, from: data) else {
-                completion(Result.failure(DataResponseError.decoding))
-                return
-            }
+        serialQueue.async {
+            NSLog("fetchUsers since: %d, perPage: %d", since, perPage)
+            let urlRequest = URLRequest(url: self.usersURL)
+            let parameters: [String : String] = ["per_page": "\(perPage)", "since": "\(since)"]
+            let encodedURLRequest = urlRequest.encode(with: parameters)
 
-            // Callback with Success
-            completion(Result.success(users))
-        }).resume()
+            self.dispatchGroup.enter()
+            self.session.dataTask(with: encodedURLRequest, completionHandler: { data, response, error in
+                guard
+                    let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.hasSuccessStatusCode,
+                    let data = data
+                    else {
+                        completion(Result.failure(DataResponseError.network))
+                        return
+                }
+                
+                // Check decoding error & callback with failure
+                guard let users = try? JSONDecoder().decode([User].self, from: data) else {
+                    completion(Result.failure(DataResponseError.decoding))
+                    return
+                }
+                
+                // Callback with Success
+                completion(Result.success(users))
+                self.dispatchGroup.leave()
+            }).resume()
+            self.dispatchGroup.wait()
+        }
     }
 
-    func fetchImage(urlString: String, completion: @escaping (Data) -> Void) {
-        let url: URL = URL(string: urlString)!
-        session.downloadTask(with: url, completionHandler: { (location, response, error) -> Void in
-            if let imageData = try? Data(contentsOf: url) {
-                completion(imageData)
-            } else {
-                print("fetchImage download task: No data for image")
-            }
-        }).resume()
+    func fetchImage(urlString: String, completion: @escaping (Result<Data, DataResponseError>) -> Void) {
+        serialQueue.async {
+            let imageUrl: URL = URL(string: urlString)!
+            self.dispatchGroup.enter()
+            self.session.downloadTask(with: imageUrl, completionHandler: { (location, urlResponse, error) -> Void in
+                if let imageData = try? Data(contentsOf: imageUrl) {
+                    completion(Result.success(imageData))
+                } else {
+                    NSLog("fetchImage download task: No data for image")
+                    completion(Result.failure(DataResponseError.network))
+                }
+                self.dispatchGroup.leave()
+            }).resume()
+            self.dispatchGroup.wait()
+        }
     }
 
     func fetchUserDetails(login: String, completion: @escaping (Result<UserDetails, DataResponseError>) -> Void) {
-        NSLog("fetchUserDetails login: %@", login)
-        let userDetailsURL = URL(string: "http://api.github.com/users/\(login)")!
+        serialQueue.async {
+            NSLog("fetchUserDetails login: %@", login)
+            let userDetailsURL = URL(string: "http://api.github.com/users/\(login)")!
 
-        session.dataTask(with: userDetailsURL, completionHandler: { data, response, error in
-            guard
-                let httpResponse = response as? HTTPURLResponse,
-                httpResponse.hasSuccessStatusCode,
-                let data = data
-                else {
-                    completion(Result.failure(DataResponseError.network))
+            self.dispatchGroup.enter()
+            self.session.dataTask(with: userDetailsURL, completionHandler: { data, response, error in
+                guard
+                    let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.hasSuccessStatusCode,
+                    let data = data
+                    else {
+                        completion(Result.failure(DataResponseError.network))
+                        return
+                }
+
+                // Check decoding error & callback with failure
+                guard let userDetails = try? JSONDecoder().decode(UserDetails.self, from: data) else {
+                    completion(Result.failure(DataResponseError.decoding))
                     return
-            }
+                }
 
-            // Check decoding error & callback with failure
-            guard let userDetails = try? JSONDecoder().decode(UserDetails.self, from: data) else {
-                completion(Result.failure(DataResponseError.decoding))
-                return
-            }
-
-            // Callback with Success
-            completion(Result.success(userDetails))
-        }).resume()
+                // Callback with Success
+                completion(Result.success(userDetails))
+                self.dispatchGroup.leave()
+            }).resume()
+            self.dispatchGroup.wait()
+        }
     }
 }

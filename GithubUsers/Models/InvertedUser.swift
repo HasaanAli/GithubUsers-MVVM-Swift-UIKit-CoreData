@@ -13,6 +13,7 @@ struct InvertedUser: Decodable, UserProtocol {
     let login: String
     let avatarUrl: String
     var image: UIImage? = nil
+    var notes: String = ""
 
     var invertedImage: UIImage? {
         // TODO cache inverted image
@@ -25,11 +26,12 @@ struct InvertedUser: Decodable, UserProtocol {
         case avatarUrl = "avatar_url"
     }
 
-    init(id: Int, login: String, avatarUrl: String, image: UIImage? = nil) {
+    init(id: Int, login: String, avatarUrl: String, image: UIImage? = nil, notes: String = "") {
         self.id = id
         self.login = login
         self.avatarUrl = avatarUrl
         self.image = image
+        self.notes = notes
     }
 
     init(from decoder: Decoder) throws {

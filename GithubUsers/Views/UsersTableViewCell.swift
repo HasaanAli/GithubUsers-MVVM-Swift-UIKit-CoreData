@@ -54,6 +54,6 @@ class DefaultUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
         }
 
         usernameLabel?.text = userp.login
-        detailsLabel?.text = "..."
+        detailsLabel?.text = ""
     }
 }

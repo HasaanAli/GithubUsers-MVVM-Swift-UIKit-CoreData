@@ -9,18 +9,27 @@
 import UIKit
 
 class UsersViewController: UIViewController, AlertCreator {
-    let tag2 = "UsersViewController -"
+    let tag = "UsersViewController -"
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var networkAvailabilityLabel: NetworkAvailabilityView!
 
     /// View controller's view model.
     private var viewModel: UsersViewModel!
+
+    /// Is table view showing filtered data.
+    private var isFiltered = false
+    private var reachedEndOfData = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
         searchBar.showsCancelButton = true
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false;
+        self.view.addGestureRecognizer(tapGesture)
 
         // Register non-storyboard cell classes
         tableView.register(LoadingTableViewCell.self, forCellReuseIdentifier: LoadingTableViewCell.CellIdentifier)
@@ -28,23 +37,37 @@ class UsersViewController: UIViewController, AlertCreator {
         tableView.rowHeight = 50
         tableView.dataSource = self
         tableView.delegate = self
+
         viewModel = UsersViewModel(delegate: self, apiPageSize: 30)
+
+        networkAvailabilityLabel.isHidden = true
+        //TODO: Register with Reachability instance
+    }
+
+    @objc func dismissKeyboard() {
+        NSLog("%@ dismissKeyboard", tag)
+        self.searchBar.resignFirstResponder()
     }
 }
 
 extension UsersViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         let storyBoard = UIStoryboard(name: "Main", bundle:nil)
         let svcIdentifier = "UserDetailsViewController"
         guard let detailViewController = storyBoard.instantiateViewController(withIdentifier: svcIdentifier)
             as? UserDetailsViewController  else {
-                NSLog("%@ Cannot get VC with identifier %@", tag2, svcIdentifier)
+                NSLog("%@ Failed to open details screen. Failed to instantiate VC with identifier %@", tag, svcIdentifier)
                 return
         }
-        let userp = viewModel.cellViewModel(at: indexPath.row).userP
-        detailViewController.viewModel = UserDetailsViewModel(userp: userp, at: indexPath, delegate: detailViewController)
-        detailViewController.notesDelegate = self
+
+        // Tapped cell's cellViewModel.
+        let tappedCellViewModel = viewModel.cellViewModel(at: indexPath.row)
+        let userDetailViewModel = UserDetailsViewModel(cellViewModel: tappedCellViewModel, indexPath: indexPath, delegate: detailViewController)
+        detailViewController.viewModel = userDetailViewModel
+
+        detailViewController.delegate = self
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }
 
@@ -57,13 +80,15 @@ extension UsersViewController: UITableViewDelegate {
 
 extension UsersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.currentCount + 1 // for activity indicator row
+        return viewModel.currentCount + (viewModel.isFilteringg ? 0 : 1) // +1 for activity indicator row when not filtering
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // LoadingTableViewCell doesn't conform to UsersTableViewCellProtocol, because it only has a UIActivityIndicator
-        if indexPath.row == viewModel.currentCount { // if its the activity indicator row
-            return tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.CellIdentifier, for: indexPath) as! LoadingTableViewCell
+        if indexPath.row == viewModel.currentCount && !viewModel.isFilteringg { // if its the activity indicator row
+            let loadingCell =  tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.CellIdentifier, for: indexPath) as! LoadingTableViewCell
+            loadingCell.indicatorView?.startAnimating()
+            return loadingCell
         } else {
             let cellViewModel = viewModel.cellViewModel(at: indexPath.row)
             return cellViewModel.cellForTableView(tableView: tableView, atIndexPath: indexPath)
@@ -73,46 +98,60 @@ extension UsersViewController: UITableViewDataSource {
 
 extension UsersViewController: UsersViewModelDelegate {
     func onCellViewModelsChanged() {
+        networkAvailabilityLabel.setFor(networkAvailable: true)
         tableView.reloadData()
     }
 
     func onCellViewModelsUpdated(at indexPaths: [IndexPath]) {
+        networkAvailabilityLabel.setFor(networkAvailable: true)
         tableView.reloadData()
         // tableView.cellForRow(at: ind)
         // TODO begin and end updates
         // tableView.reloadRows(at: indexPaths, with: .automatic)
     }
 
-    func onLoadFailed(with reason: String) {
-        NSLog("%@ onLoadFailed(with reason:) - \(reason)", tag2)
-        //        let title = "Warning"
-        //        // TODO retryAction
-        //        let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
-        //        showAlert(with: title , message: reason, actions: [dismissAction])
+    func onImageReady(at indexPath: IndexPath) {
+        networkAvailabilityLabel.setFor(networkAvailable: true)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 
     func onNoDataChanged() {
-        NSLog("%@ onNoDataChanged", tag2)
+        networkAvailabilityLabel.setFor(networkAvailable: true)
+        NSLog("%@ onNoDataChanged", tag)
+        NSLog("%@ Will set reachedEndOfData true.", tag)
+        reachedEndOfData = true
+        // Reload tableview
+        let totalRows = tableView.numberOfRows(inSection: 0)
+        let lastRowIndexPath = IndexPath(row: totalRows - 1, section: 0)
+        tableView.beginUpdates()
+        tableView.deleteRows(at: [lastRowIndexPath], with: .middle)
+        tableView.endUpdates()
     }
 
-    func onImageReady(at indexPath: IndexPath) {
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+    func onLoadFailed(with error: DataResponseError, retry: @escaping () -> Void) {
+        NSLog("%@ onLoadFailed(with error:) - \(error.description)", tag)
+        switch error {
+        case .network: // Inform user about network & retry
+            networkAvailabilityLabel.setFor(networkAvailable: false)
+            networkAvailabilityLabel.isHidden = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                retry() // TODO: Pass this retry closure to Reachability
+            }
+        case .decoding:
+            networkAvailabilityLabel.showWith(customBadText: "Data parsing error. Please email dev@g.com")
+        }
     }
 }
 
 extension UsersViewController: UISearchBarDelegate {
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        super
-//        viewModel.filterData(by: searchText)
-//    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        NSLog("%@ Filter by '\(searchText)'", tag)
+        viewModel.filterData(by: searchText)
+    }
 }
 
-extension UsersViewController: UserDetailsNotesDelegate {
-    func onNotesUpdated(notes: String, at indexPath: IndexPath?) {
-        guard let indexPath = indexPath else {
-            NSLog("%@ onNotesUpdates Got indexPath = nil", tag2)
-            return
-        }
-        viewModel.updateCellViewModel(with: notes, at: indexPath)
+extension UsersViewController: UserDetailsViewControllerDelegate {
+    func onNotesUpdated(with notes: String, for cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath) {
+        viewModel.update(notes: notes, for: cellViewModel, at: visibleIndexPath)
     }
 }

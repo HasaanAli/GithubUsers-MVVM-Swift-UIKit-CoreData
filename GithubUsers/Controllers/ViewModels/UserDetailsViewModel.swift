@@ -10,67 +10,103 @@ import Foundation
 import UIKit
 
 protocol UserDetailsViewModelDelegate {
-    func onDetailsSuccess(userDetails: UserDetails)
-    func onDetailsFailed(error: DataResponseError)
+    func onLoadDetailsSuccess(userDetails: UserDetails)
+    func onLoadDetailsFailed(error: DataResponseError, retry: @escaping () -> Void)
+    func onNotesChanged(to notes: String)
 }
 
 /// View model for UserDetailsViewController.
 class UserDetailsViewModel {
-    let tag = "UserDetailsViewModel"
-    let apiClient = GithubUsersClient.sharedInstance
-    let coredataManager = CoreDataManager.sharedInstance
+    private let tag = "UserDetailsViewModel"
+    private let apiClient = GithubUsersClient.sharedInstance
+    private let coredataManager = CoreDataManager.sharedInstance
+
 
     var image: UIImage? {
-        return userp.image
+        return tappedCellViewModel.userp.image
     }
 
     var notes: String {
-        if let notesUser = userp as? NotesUser {
+        if let notesUser = tappedCellViewModel.userp as? NotesUser {
             return notesUser.notes
-        } else {
+        } else if let invertedUser = tappedCellViewModel.userp as? InvertedUser {
+            return invertedUser.notes
+        } else if let detailedUser = tappedCellViewModel.userp as? UserDetails { // incase
+            return detailedUser.notes
+        } else { // DefaultUser doesn't have no notes
             return ""
         }
     }
 
-    private var userp: UserProtocol // because it can be reassigned with a different concreate type
-    /// IndexPath of main table view to which this Details User belongs.
-    let indexPath: IndexPath
+    /// IndexPath of table row tapped by user.
+    let tappedIndexPath: IndexPath // for visible index path
+
+    // Derived property for public access
+    var tappedCellViewModell: UserCellViewModelProtocol {
+        return self.tappedCellViewModel
+    }
+
+    // var because it can be reassigned with a different concrete type depending upon new notes
+    // Private so that no one can reassign from outside
+    private var tappedCellViewModel: UserCellViewModelProtocol // for unfiltered index path
+    
     let delegate: UserDetailsViewModelDelegate
 
-    init(userp: UserProtocol, at indexPath: IndexPath, delegate: UserDetailsViewModelDelegate) {
-        self.userp = userp
-        self.indexPath = indexPath
+    init(cellViewModel: UserCellViewModelProtocol, indexPath: IndexPath, delegate: UserDetailsViewModelDelegate) {
+        self.tappedCellViewModel = cellViewModel
+        self.tappedIndexPath = indexPath
         self.delegate = delegate
     }
 
     func fetchDetails() {
-        apiClient.fetchUserDetails(login: userp.login) { result in
+        apiClient.fetchUserDetails(login: tappedCellViewModel.userp.login) { result in
             switch result {
             case .success(var userDetails):
                 // set notes and image from local
                 userDetails.image = self.image
                 userDetails.notes = self.notes
                 DispatchQueue.main.async {
-                    self.delegate.onDetailsSuccess(userDetails: userDetails)
+                    self.delegate.onLoadDetailsSuccess(userDetails: userDetails)
                 }
             case .failure(let error):
-                DispatchQueue.main.async {
-                    self.delegate.onDetailsFailed(error: error)
+                switch error {
+                case .network:
+                    NSLog("%@ fetchDetails - network error", self.tag)
+                    DispatchQueue.main.async {
+                        self.delegate.onLoadDetailsFailed(error: error) {
+                            self.fetchDetails()
+                        }
+                    }
+                case .decoding:
+                    NSLog("%@ fetchDetails - decoding error", self.tag)
+                    DispatchQueue.main.async {
+                        self.delegate.onLoadDetailsFailed(error: error, retry: {})
+                    }
                 }
             }
         }
     }
 
     func save(notes: String) {
-        if notes.isEmpty {
-            // If new notes are empty, assign DefaultUser to userp who doesn't have notes
-            userp = User(id: userp.id, login: userp.login, avatarUrl: userp.avatarUrl, image: userp.image)
-        } else {
-            // If new notes are present, assign NotesUser to userp cz userp can be
-            // a DefaultUser too who have notes
-            userp = NotesUser(id: userp.id, login: userp.login, avatarUrl: userp.avatarUrl, notes: notes, image: userp.image)
+        let notesNotEmpty = !notes.isEmpty
+        let isForth = tappedCellViewModel.unfilteredIndex.isForth
+        let userp = tappedCellViewModel.userp
+        let id = userp.id
+        let login = userp.login
+        let avatarUrl = userp.avatarUrl
+        let image = userp.image
+
+        switch (notesNotEmpty, isForth) {
+        case (_, true): // make InvertedUser, may have notes
+            tappedCellViewModel.userp = InvertedUser(id: id, login: login, avatarUrl: avatarUrl, image: image, notes: notes)
+        case (true, false): // make NotesUser
+            tappedCellViewModel.userp = NotesUser(id: id, login: login, avatarUrl: avatarUrl, notes: notes, image: image)
+        case (false, false): // make DefaultUser
+            tappedCellViewModel.userp = User(id: id, login: login, avatarUrl: avatarUrl, image: image)
         }
         // Now send the new userp to db
         coredataManager.update(userp: userp)
+        // Call delegate
+        delegate.onNotesChanged(to: notes)
     }
 }

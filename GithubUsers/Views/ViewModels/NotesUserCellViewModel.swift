@@ -9,15 +9,17 @@
 import UIKit
 
 class NotesUserCellViewModel: UserCellViewModelProtocol {
-    var userP: UserProtocol
+    var userp: UserProtocol
+    let unfilteredIndex: Int
 
-    init(notesUser: NotesUser) {
-        self.userP = notesUser
+    init(notesUser: NotesUser, index: Int) {
+        self.userp = notesUser
+        self.unfilteredIndex = index
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NotesUserTableViewCell.CellIdentifier, for: indexPath) as! NotesUserTableViewCell
-        cell.configure(with: userP)
+        cell.configure(with: userp)
         return cell
     }
 }

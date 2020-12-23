@@ -10,12 +10,15 @@ import UIKit
 
 class LoadingTableViewCell: UITableViewCell {
     static let CellIdentifier = "LoadingTableViewCell"
-
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    var indicatorView: UIActivityIndicatorView? = nil
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         // Initialization code
-        let indicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        let indicatorView = UIActivityIndicatorView(style: .gray)
+        self.indicatorView = indicatorView
         indicatorView.color = UIColor.purple
+        indicatorView.hidesWhenStopped = true
         indicatorView.startAnimating()
         contentView.addSubview(indicatorView)
         indicatorView.translatesAutoresizingMaskIntoConstraints = false

@@ -10,15 +10,17 @@ import UIKit
 
 class DefaultUserCellViewModel: UserCellViewModelProtocol {
     /// Of type UserProtocol
-    var userP: UserProtocol
+    var userp: UserProtocol
+    let unfilteredIndex: Int
 
-    init(user: User) {
-        self.userP = user
+    init(user: User, index: Int) {
+        self.userp = user
+        self.unfilteredIndex = index
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: DefaultUserTableViewCell.CellIdentifier, for: indexPath) as! DefaultUserTableViewCell
-        cell.configure(with: userP)
+        cell.configure(with: userp)
         return cell
     }
 }
