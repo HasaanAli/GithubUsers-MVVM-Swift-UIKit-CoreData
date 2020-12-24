@@ -74,7 +74,13 @@ final class UsersViewModel {
         // load from database first time when ufCellViewModels array is empty
         if ufCellViewModels.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
             var index = 0
+            var missingImagesIndices = [Int]()
             for dbUser in dbUsers {
+                // Store index if image missing
+                if dbUser.image == nil {
+                    missingImagesIndices.append(index)
+                }
+
                 switch dbUser {
                 case let user as User:
                     ufCellViewModels.append(DefaultUserCellViewModel(user: user, index: index))
@@ -90,6 +96,10 @@ final class UsersViewModel {
                 }
             }
             delegate?.onCellViewModelsChanged()
+            // Load missing images here
+            let indexPaths = missingImagesIndices.map { IndexPath(row: $0, section: 0) }
+            loadImages(forUsersAtIndexPaths: indexPaths)
+
             //TODO: load from API too, in parallel, as required by the task.
         } else { // db gave nil or zero records
             loadUsersFromAPI()
@@ -255,12 +265,8 @@ final class UsersViewModel {
             default:
                 break
             }
-            print("\($0.userp.login) contains \(searchText)")
-            
             return loginContainsSearchText || notesContainSearchText
         }
-        print(filteredCellViewModels)
-        print("Filtered \(filteredCellViewModels.count) rows")
         self.delegate?.onCellViewModelsChanged()
 //        if searchText.isEmpty {
 ////            filteredCellViewModels.removeAll()
