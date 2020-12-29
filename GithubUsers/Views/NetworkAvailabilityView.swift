@@ -39,9 +39,11 @@ class NetworkAvailabilityView: UILabel {
             backgroundColor = availableBGColor
             textColor = availableTextColor
             text = networkAvailableText
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.isHidden = true
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                if text == networkAvailableText {
+//                    self.isHidden = true
+//                }
+//            }
         } else {
             backgroundColor = unavailableBGColor
             textColor = unavailableTextColor

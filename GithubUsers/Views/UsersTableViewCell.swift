@@ -9,7 +9,7 @@
 import UIKit
 
 class DefaultUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
-    let tag2 = "DefaultUserTableViewCell-" // TODO think of better name other than tag
+    private let tag2 = "DefaultUserTableViewCell-" // TODO think of better name other than tag
     static let CellIdentifier = "DefaultUserTableViewCell"
 
     @IBOutlet weak var profileImageView: UIImageView!

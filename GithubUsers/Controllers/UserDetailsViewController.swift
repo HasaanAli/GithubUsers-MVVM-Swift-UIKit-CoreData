@@ -51,7 +51,8 @@ class UserDetailsViewController: UIViewController {
 
 extension UserDetailsViewController: UserDetailsViewModelDelegate {
     func onLoadDetailsSuccess(userDetails: UserDetails) {
-        networkAvailabilityLabel.isHidden = true
+        networkAvailabilityLabel.setFor(networkAvailable: true)
+        // don't change isHidden
         if let followers = userDetails.followers {
             followersValueLabel.text = "\(followers)"
         } else {
@@ -70,20 +71,13 @@ extension UserDetailsViewController: UserDetailsViewModelDelegate {
         hiddenViews.forEach { $0.isHidden = false }
     }
 
-    func onLoadDetailsFailed(error: DataResponseError, retry: @escaping () -> Void) {
+    func onLoadDetailsFailed(error: DataResponseError) {
         switch error {
         case .network:
             networkAvailabilityLabel.setFor(networkAvailable: false)
-            // TODO: pass retry Reachability
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                retry()
-            }
+            networkAvailabilityLabel.isHidden = false
         case .decoding:
             networkAvailabilityLabel.showWith(customBadText: "Details parsing failed. Email at dev@g.com")
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                retry()
-            }
         }
         NSLog("onDetailsFailed - error: %@", error.description)
     }
