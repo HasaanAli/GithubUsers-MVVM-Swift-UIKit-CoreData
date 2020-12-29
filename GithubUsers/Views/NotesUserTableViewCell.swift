@@ -9,7 +9,7 @@
 import UIKit
 
 class NotesUserTableViewCell: UITableViewCell, UserTableViewCellProtocol {
-    let tag2 = "NotesUserTableViewCell-" // TODO think of better name other than tag
+    private let tag2 = "NotesUserTableViewCell-" // TODO think of better name other than tag
     static let CellIdentifier = "NotesUserTableViewCell"
 
     @IBOutlet weak var profileImageView: UIImageView!

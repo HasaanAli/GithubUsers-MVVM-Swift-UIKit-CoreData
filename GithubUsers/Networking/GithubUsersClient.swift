@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import Network
 
-final class GithubUsersClient {
-    static let sharedInstance = GithubUsersClient()
+open class GithubUsersClient {
     let serialQueue = DispatchQueue(label: "ApiClientQueue")
     let dispatchGroup = DispatchGroup()
 
@@ -19,7 +19,7 @@ final class GithubUsersClient {
 
     let session: URLSession
     
-    private init(session: URLSession = URLSession.shared) {
+    init(session: URLSession = URLSession.shared) { 
         self.session = session
     }
     
@@ -36,14 +36,24 @@ final class GithubUsersClient {
                     let httpResponse = response as? HTTPURLResponse,
                     httpResponse.hasSuccessStatusCode,
                     let data = data
-                    else {
-                        completion(Result.failure(DataResponseError.network))
-                        return
+                else {
+                    completion(Result.failure(DataResponseError.network))
+                    self.dispatchGroup.leave()
+                    let nwpathMonitor = NWPathMonitor()
+                    self.start(monitor: nwpathMonitor, pathUpdateHandler: { path in
+                        if path.status == .satisfied {
+                            self.fetchUsers(since: since, perPage: perPage, completion: completion)
+                            nwpathMonitor.cancel() // after retrying once, further failure will retry itself
+                        }
+                    })
+
+                    return
                 }
                 
                 // Check decoding error & callback with failure
                 guard let users = try? JSONDecoder().decode([User].self, from: data) else {
                     completion(Result.failure(DataResponseError.decoding))
+                    self.dispatchGroup.leave()
                     return
                 }
                 
@@ -65,6 +75,13 @@ final class GithubUsersClient {
                 } else {
                     NSLog("fetchImage download task: No data for image")
                     completion(Result.failure(DataResponseError.network))
+                    let nwpathMonitor = NWPathMonitor()
+                    self.start(monitor: nwpathMonitor, pathUpdateHandler: { path in
+                        if path.status == .satisfied {
+                            self.fetchImage(urlString: urlString, completion: completion)
+                            nwpathMonitor.cancel() // after retrying once, further failure will retry itself
+                        }
+                    })
                 }
                 self.dispatchGroup.leave()
             }).resume()
@@ -83,14 +100,23 @@ final class GithubUsersClient {
                     let httpResponse = response as? HTTPURLResponse,
                     httpResponse.hasSuccessStatusCode,
                     let data = data
-                    else {
-                        completion(Result.failure(DataResponseError.network))
-                        return
+                else {
+                    completion(Result.failure(DataResponseError.network))
+                    self.dispatchGroup.leave()
+                    let nwpathMonitor = NWPathMonitor()
+                    self.start(monitor: nwpathMonitor, pathUpdateHandler: { path in
+                        if path.status == .satisfied {
+                            self.fetchUserDetails(login: login, completion: completion)
+                            nwpathMonitor.cancel() // after retrying once, further failure will retry itself
+                        }
+                    })
+                    return
                 }
 
                 // Check decoding error & callback with failure
                 guard let userDetails = try? JSONDecoder().decode(UserDetails.self, from: data) else {
                     completion(Result.failure(DataResponseError.decoding))
+                    self.dispatchGroup.leave()
                     return
                 }
 
@@ -100,5 +126,10 @@ final class GithubUsersClient {
             }).resume()
             self.dispatchGroup.wait()
         }
+    }
+    private func start(monitor: NWPathMonitor, pathUpdateHandler: @escaping (NWPath) -> Void) {
+        monitor.pathUpdateHandler = pathUpdateHandler
+        let queue = DispatchQueue(label: "Monitor")
+        monitor.start(queue: queue)
     }
 }

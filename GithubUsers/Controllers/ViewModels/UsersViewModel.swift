@@ -14,20 +14,20 @@ protocol UsersViewModelDelegate: class {
     func onImageReady(at indexPath: IndexPath)
     func onNoDataChanged()
     /// Use retry() closure to be called when, for example, Internet becomes available.
-    func onLoadFailed(with error: DataResponseError, retry: @escaping () -> Void)
+    func onLoadFailed(with error: DataResponseError)
 }
 
 ///View model for UsersViewController.
 final class UsersViewModel {
-    private weak var delegate: UsersViewModelDelegate?
     private let apiPageSize: Int
     /// Unfiltered array of cell view models. Use cellViewModel(at:) to get filtered cellViewModel, when applicable.
-    private var ufCellViewModels: [UserCellViewModelProtocol] = []
+    private var ufCellViewModels: [UserCellViewModelProtocol]
     private var isFetchInProgress = false
 
-    private let coredataManager = CoreDataManager.sharedInstance
-    private let apiClient = GithubUsersClient.sharedInstance
-    private let imageCache = ImageCache.sharedInstance
+    var coredataManager: CoreDataManager?
+    var apiClient: GithubUsersClient?
+    weak var delegate: UsersViewModelDelegate?
+    var imageCache = ImageCache.sharedInstance
 
     private var filteredCellViewModels: [UserCellViewModelProtocol]
     private var isFiltering = false
@@ -36,9 +36,9 @@ final class UsersViewModel {
         return isFiltering
     }
 
-    init(delegate: UsersViewModelDelegate, apiPageSize: Int) {
-        self.delegate = delegate
+    init(apiPageSize: Int) {
         self.apiPageSize = apiPageSize
+        ufCellViewModels = []
         filteredCellViewModels = []
     }
 
@@ -72,9 +72,15 @@ final class UsersViewModel {
         }
 
         // load from database first time when ufCellViewModels array is empty
-        if ufCellViewModels.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
+        if ufCellViewModels.count == 0, let dbUsers = coredataManager?.fetchAllUsers(), dbUsers.count > 0 {
             var index = 0
+            var missingImagesIndices = [Int]()
             for dbUser in dbUsers {
+                // Store index if image missing
+                if dbUser.image == nil {
+                    missingImagesIndices.append(index)
+                }
+
                 switch dbUser {
                 case let user as User:
                     ufCellViewModels.append(DefaultUserCellViewModel(user: user, index: index))
@@ -89,7 +95,13 @@ final class UsersViewModel {
                     NSLog("UsersViewModel - loadData() Error: Failed dbUser switch cast as one of concrete types")
                 }
             }
-            delegate?.onCellViewModelsChanged()
+            DispatchQueue.main.async {
+                self.delegate?.onCellViewModelsChanged()
+            }
+            // Load missing images here
+            let indexPaths = missingImagesIndices.map { IndexPath(row: $0, section: 0) }
+            loadImages(forUsersAtIndexPaths: indexPaths)
+
             //TODO: load from API too, in parallel, as required by the task.
         } else { // db gave nil or zero records
             loadUsersFromAPI()
@@ -112,34 +124,24 @@ final class UsersViewModel {
         isFetchInProgress = true
 
         let lastMaxUserId = maxUserId
-        apiClient.fetchUsers(since: lastMaxUserId, perPage: apiPageSize) { result in
+        let fetchUsersCompletionBlock: (Result<[User], DataResponseError>) -> Void = { result in
             switch result {
             case .failure(let error):
+                self.isFetchInProgress = false
                 DispatchQueue.main.async {
-                    self.isFetchInProgress = false
-                    // Retry block to be passed to onLoadFailed delegate method.
-                    let retry: () -> Void = {
-                        if error == DataResponseError.network {
-                            NSLog("loadUsersFromAPI - Retry closure called, reloading users from api")
-                            self.loadUsersFromAPI()
-                        } else {
-                            // Do nothing
-                            NSLog("loadUsersFromAPI - Retry closure called, doing nothing on error: \(error)")
-                        }
-                    }
-                    self.delegate?.onLoadFailed(with: error, retry: retry)
-                    // delegate shows appropriate UI for this error.
+                    self.delegate?.onLoadFailed(with: error) // delegate shows appropriate UI for this error.
                 }
             case .success(let newUsers):
                 self.isFetchInProgress = false
 
                 guard newUsers.count > 0 else { // we reached end of data
                     NSLog("loadUsersFromApi - success but no new user since=\(lastMaxUserId)")
-                    self.delegate?.onNoDataChanged()
+                    DispatchQueue.main.async {
+                        self.delegate?.onNoDataChanged()
+                    }
                     return
                 }
-                // We got new data
-
+                // We have got new data
 
                 // for inverted user cell view models, and for index passing in cell view model.
                 var index = self.ufCellViewModels.count // Not 0
@@ -156,21 +158,22 @@ final class UsersViewModel {
                     index += 1
                 }
 
+                self.coredataManager?.insert(users: newUsers) //Save to db.
                 DispatchQueue.main.async {
-                    self.coredataManager.insert(users: newUsers) //Save to db.
                     self.delegate?.onCellViewModelsChanged()
                 }
                 let newIndexPaths = self.calculateIndexPathsToReload(appendCount: newUsers.count)
                 self.loadImages(forUsersAtIndexPaths: newIndexPaths)
             }
         }
+        apiClient?.fetchUsers(since: lastMaxUserId, perPage: apiPageSize, completion: fetchUsersCompletionBlock)
     }
 
     /// Loads images from api.
     func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
             let avatarUrl = cellViewModel(at: indexPath.row).userp.avatarUrl
-            apiClient.fetchImage(urlString: avatarUrl) { result in
+            apiClient?.fetchImage(urlString: avatarUrl) { result in
                 switch result {
                 case .success(let imageData):
                     if let image = UIImage(data: imageData) {
@@ -179,16 +182,15 @@ final class UsersViewModel {
                         userp.image = image
                         self.ufCellViewModels[indexPath.row].userp = userp //update view model
                         self.imageCache.save(image: image, forKey: avatarUrl)
+                        self.coredataManager?.update(userp: userp) // update user image in db
                         DispatchQueue.main.async {
-                            self.coredataManager.update(userp: userp) // update user image in db
                             self.delegate?.onImageReady(at: indexPath)
                         }
                     }
                 case .failure(let error):
-                    // TODO: add retry
-                    NSLog("Image fetch error")
-//                    error
-//                    self.delegate?.onLoadFailed(with: check error, retry: {})
+                    DispatchQueue.main.async {
+                        self.delegate?.onLoadFailed(with: error)
+                    }
                 }
             }
         }
@@ -238,7 +240,9 @@ final class UsersViewModel {
                 filteredCellViewModels[visibleIndexPath.row] = notesUserCellViewModel
             }
         }
-        delegate?.onCellViewModelsUpdated(at: [visibleIndexPath])
+        DispatchQueue.main.async {
+            self.delegate?.onCellViewModelsUpdated(at: [visibleIndexPath])
+        }
     }
 
     func filterData(by searchText: String) {
@@ -255,19 +259,10 @@ final class UsersViewModel {
             default:
                 break
             }
-            print("\($0.userp.login) contains \(searchText)")
-            
             return loginContainsSearchText || notesContainSearchText
         }
-        print(filteredCellViewModels)
-        print("Filtered \(filteredCellViewModels.count) rows")
-        self.delegate?.onCellViewModelsChanged()
-//        if searchText.isEmpty {
-////            filteredCellViewModels.removeAll()
-////        } else {
-//            filteredCellViewModels = ufCellViewModels.filter {
-//                return $0.userp.login.contains(searchText)
-//            }
-//        }
+        DispatchQueue.main.async {
+            self.delegate?.onCellViewModelsChanged()
+        }
     }
 }

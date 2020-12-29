@@ -10,81 +10,124 @@ import CoreData
 import UIKit
 
 class CoreDataManager {
-    static let sharedInstance = CoreDataManager()
-    private init() {}
+    private let tag = "CoreDataManager"
+    public static let modelName = "GithubUsers"
+    static let userEntityName = "UserEntity"
+    static let userEntityKey_Id = "id"
+    static let userEntityKey_Login = "login"
+    static let userEntityKey_AvatarUrl = "avatarUrl"
+    static let userEntityKey_ImageData = "imageData"
+    static let userEntityKey_Notes = "notes"
 
-    var sharedUIApplicationDelegate: UIApplicationDelegate? {
-        return UIApplication.shared.delegate
+    init() {}
+
+    open lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: CoreDataManager.modelName)
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                /*
+                 Typical reasons for an error here include:
+                 * The parent directory does not exist, cannot be created, or disallows writing.
+                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
+                 * The device is out of space.
+                 * The store could not be migrated to the current model version.
+                 Check the error message to determine what the actual problem was.
+                 */
+                NSLog("%@ Unresolved error \(error), \(error.userInfo)", self.tag)
+            }
+        })
+        return container
+    }()
+
+    lazy var readContext: NSManagedObjectContext = {
+        return persistentContainer.viewContext
+    }()
+
+    lazy var writeContext: NSManagedObjectContext = {
+        NSLog("%@ - Creating new background context ( write context )", tag)
+        return persistentContainer.newBackgroundContext()
+    }()
+
+    /// Uses performAndWait and writeContext.hasChanges to save writeContext.
+    func saveWriteContext() {
+        /**
+         Use performAndWait so that if AppDelegate calls us from within, for example, appWillTerminate, then we should wait and save the context changes.
+         */
+        writeContext.performAndWait {
+            if self.writeContext.hasChanges {
+                do {
+                    try self.writeContext.save()
+                    NSLog("%@ - Saved writeContext", self.tag)
+                } catch let nserror as NSError {
+                    NSLog("%@ - Failed at saveWriteContext() - \(nserror), \(nserror.userInfo)", self.tag)
+                }
+            }
+        }
     }
 
     /// Can be used from UI thread.
     func insert(users: [UserProtocol]) {
-        guard let appDelegate = sharedUIApplicationDelegate as? AppDelegate else {
-            NSLog("")
-            return
-        }
-
-        let managedContext = appDelegate.persistentContainer.viewContext
         for userp in users {
-            let entity = NSEntityDescription.entity(forEntityName: "UserEntity", in: managedContext)!
-            let userObject = NSManagedObject(entity: entity, insertInto: managedContext)
+            let entity = NSEntityDescription.entity(forEntityName: CoreDataManager.userEntityName, in: writeContext)!
+            let userObject = NSManagedObject(entity: entity, insertInto: writeContext)
+            if let userEntity = userObject as? UserEntity {
+                print("insert - cast to UserEntity successful")
+            } else {
+                print("insert - cast to UserEntity failed")
+            }
 
-            userObject.setValue(userp.id, forKeyPath: "id")
-            userObject.setValue(userp.login, forKeyPath: "login")
-            userObject.setValue(userp.avatarUrl, forKeyPath: "avatarUrl")
+            userObject.setValue(userp.id, forKeyPath: CoreDataManager.userEntityKey_Id)
+            userObject.setValue(userp.login, forKeyPath: CoreDataManager.userEntityKey_Login)
+            userObject.setValue(userp.avatarUrl, forKeyPath: CoreDataManager.userEntityKey_AvatarUrl)
             if let image = userp.image {
                 let imageData = image.jpegData(compressionQuality: 0.7); // 0.7 is JPG quality
-                userObject.setValue(imageData, forKeyPath: "imageData")
+                userObject.setValue(imageData, forKeyPath: CoreDataManager.userEntityKey_ImageData)
             }
             if let notesUser = userp as? NotesUser {
-                userObject.setValue(notesUser.notes, forKeyPath: "notes")
+                userObject.setValue(notesUser.notes, forKeyPath: CoreDataManager.userEntityKey_Notes)
             }
         }// end for
 
-        do {
-            try managedContext.save()
-            NSLog("successfully saved users to db")
-        } catch let error as NSError {
-            NSLog("Error on save users to db. \(error), \(error.userInfo)")
-        }
+        NSLog("%@ - inserted users to writeContext")
     }
 
     func update(userp: UserProtocol) {
-        let tag = "CoreDataManager.update(user:) -"
-        guard let appDelegate = sharedUIApplicationDelegate as? AppDelegate else {
-            NSLog("CoreDataManager.update(user:) - Failed to get app delegate")
-            return
-        }
+        let tag = "CoreDataManager.update(user:) - "
 
-        DispatchQueue.global(qos: .background).async {
-            let managedContext = appDelegate.persistentContainer.viewContext
-            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "UserEntity")
+        writeContext.perform {
+            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: CoreDataManager.userEntityName)
             let predicate = NSPredicate(format: "id == %d", userp.id)
             fetchRequest.predicate = predicate
 
             do {
-                let fetchedEntities = try managedContext.fetch(fetchRequest) as! [UserEntity] //TODO use guard, no force-cast
-                let userEntity = fetchedEntities.first
-                userEntity?.login = userp.login
-                userEntity?.avatarUrl = userp.avatarUrl
+                let fetchedEntities = try self.writeContext.fetch(fetchRequest) as! [UserEntity] //TODO use guard, no force-cast
+                if fetchedEntities.count > 1 {
+                    NSLog("%@ - ALARM !!! - update() fetched more than 1 entities", tag)
+                }
+
+                guard let userEntity = fetchedEntities.first else {
+                    NSLog("%@ - update() - fetchedEntities.first is nil", tag)
+                    return
+                }
+
+                userEntity.login = userp.login
+                userEntity.avatarUrl = userp.avatarUrl
                 if let image = userp.image {
                     let imageData = image.jpegData(compressionQuality: 0.7); // 0.7 is JPG quality
-                    userEntity?.imageData = imageData
+                    userEntity.imageData = imageData
                 }
 
                 switch userp {
                 case is User:
-                    userEntity?.notes = nil
+                    userEntity.notes = nil
                 case let invertedUser as InvertedUser:
-                    userEntity?.notes = invertedUser.notes
+                    userEntity.notes = invertedUser.notes
                 case let notesUser as NotesUser:
-                    userEntity?.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
+                    userEntity.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
                 default:
                     NSLog("%@ switch userp default case run !!", tag)
                 }
-
-                try managedContext.save()
-                NSLog("%@ Success", tag)
+                NSLog("%@ Updated userEntity", tag)
             } catch let error as NSError {
                 NSLog("%@ Failed. Error: \(error)", tag)
                 NSLog("error.userInfo = %@", error.userInfo)
@@ -93,16 +136,18 @@ class CoreDataManager {
     }
 
     func fetchAllUsers() -> [UserProtocol]? {
-        guard let appDelegate = sharedUIApplicationDelegate as? AppDelegate else {
-            NSLog("CoreDataManager.fetchAllUsers() - Failed to get app delegate")
-            return nil
-        }
-
-        let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "UserEntity")
+        let sortById = NSSortDescriptor(key: CoreDataManager.userEntityKey_Id, ascending: true)
+        fetchRequest.sortDescriptors = [sortById]
 
         do {
-            let userEntities = try managedContext.fetch(fetchRequest)
+            let userEntities = try readContext.fetch(fetchRequest)
+            if let userEntities = userEntities as? [UserEntity] {
+                print("fetchAll - cast to UserEntities successful")
+            } else {
+                print("fetchAll - cast to UserEntities failed")
+            }
+
             var users = [UserProtocol]()
             var i = 0 // for inverted users
             for userEntity in userEntities {

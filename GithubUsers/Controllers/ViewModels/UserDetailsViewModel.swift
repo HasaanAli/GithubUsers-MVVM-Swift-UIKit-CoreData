@@ -11,15 +11,15 @@ import UIKit
 
 protocol UserDetailsViewModelDelegate {
     func onLoadDetailsSuccess(userDetails: UserDetails)
-    func onLoadDetailsFailed(error: DataResponseError, retry: @escaping () -> Void)
+    func onLoadDetailsFailed(error: DataResponseError)
     func onNotesChanged(to notes: String)
 }
 
 /// View model for UserDetailsViewController.
 class UserDetailsViewModel {
     private let tag = "UserDetailsViewModel"
-    private let apiClient = GithubUsersClient.sharedInstance
-    private let coredataManager = CoreDataManager.sharedInstance
+    var apiClient = AppDelegate.githubUsersClient
+    var coredataManager = AppDelegate.coreDataManager
 
 
     var image: UIImage? {
@@ -69,19 +69,9 @@ class UserDetailsViewModel {
                     self.delegate.onLoadDetailsSuccess(userDetails: userDetails)
                 }
             case .failure(let error):
-                switch error {
-                case .network:
-                    NSLog("%@ fetchDetails - network error", self.tag)
-                    DispatchQueue.main.async {
-                        self.delegate.onLoadDetailsFailed(error: error) {
-                            self.fetchDetails()
-                        }
-                    }
-                case .decoding:
-                    NSLog("%@ fetchDetails - decoding error", self.tag)
-                    DispatchQueue.main.async {
-                        self.delegate.onLoadDetailsFailed(error: error, retry: {})
-                    }
+                NSLog("%@ fetchDetails - error \(error)", self.tag)
+                DispatchQueue.main.async {
+                    self.delegate.onLoadDetailsFailed(error: error)
                 }
             }
         }
@@ -90,12 +80,13 @@ class UserDetailsViewModel {
     func save(notes: String) {
         let notesNotEmpty = !notes.isEmpty
         let isForth = tappedCellViewModel.unfilteredIndex.isForth
-        let userp = tappedCellViewModel.userp
-        let id = userp.id
-        let login = userp.login
-        let avatarUrl = userp.avatarUrl
-        let image = userp.image
+        let oldUserp = tappedCellViewModel.userp
+        let id = oldUserp.id
+        let login = oldUserp.login
+        let avatarUrl = oldUserp.avatarUrl
+        let image = oldUserp.image
 
+        // Create new userp
         switch (notesNotEmpty, isForth) {
         case (_, true): // make InvertedUser, may have notes
             tappedCellViewModel.userp = InvertedUser(id: id, login: login, avatarUrl: avatarUrl, image: image, notes: notes)
@@ -105,7 +96,7 @@ class UserDetailsViewModel {
             tappedCellViewModel.userp = User(id: id, login: login, avatarUrl: avatarUrl, image: image)
         }
         // Now send the new userp to db
-        coredataManager.update(userp: userp)
+        coredataManager.update(userp: tappedCellViewModel.userp)
         // Call delegate
         delegate.onNotesChanged(to: notes)
     }

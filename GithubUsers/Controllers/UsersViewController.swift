@@ -9,7 +9,7 @@
 import UIKit
 
 class UsersViewController: UIViewController, AlertCreator {
-    let tag = "UsersViewController -"
+    private let tag = "UsersViewController -"
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
@@ -38,7 +38,10 @@ class UsersViewController: UIViewController, AlertCreator {
         tableView.dataSource = self
         tableView.delegate = self
 
-        viewModel = UsersViewModel(delegate: self, apiPageSize: 30)
+        viewModel = UsersViewModel(apiPageSize: 30)
+        viewModel.coredataManager = AppDelegate.coreDataManager
+        viewModel.apiClient = AppDelegate.githubUsersClient
+        viewModel.delegate = self
 
         networkAvailabilityLabel.isHidden = true
         //TODO: Register with Reachability instance
@@ -99,6 +102,7 @@ extension UsersViewController: UITableViewDataSource {
 extension UsersViewController: UsersViewModelDelegate {
     func onCellViewModelsChanged() {
         networkAvailabilityLabel.setFor(networkAvailable: true)
+        // don't change isHidden
         tableView.reloadData()
     }
 
@@ -128,15 +132,12 @@ extension UsersViewController: UsersViewModelDelegate {
         tableView.endUpdates()
     }
 
-    func onLoadFailed(with error: DataResponseError, retry: @escaping () -> Void) {
+    func onLoadFailed(with error: DataResponseError) {
         NSLog("%@ onLoadFailed(with error:) - \(error.description)", tag)
         switch error {
         case .network: // Inform user about network & retry
             networkAvailabilityLabel.setFor(networkAvailable: false)
             networkAvailabilityLabel.isHidden = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                retry() // TODO: Pass this retry closure to Reachability
-            }
         case .decoding:
             networkAvailabilityLabel.showWith(customBadText: "Data parsing error. Please email dev@g.com")
         }
