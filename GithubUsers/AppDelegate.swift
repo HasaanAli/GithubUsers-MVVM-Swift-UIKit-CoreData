@@ -7,20 +7,27 @@
 //
 
 import UIKit
-import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    static let coreDataManager = CoreDataManager()
-    static let githubUsersClient = GithubUsersClient()
+    static var coreDataManager: CoreDataManager?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        if getenv("isTesting") != nil {
+            return true
+        }
+
+        let storyboard = UIStoryboard.init(name: "Main", bundle: Bundle.main)
+        let vc = storyboard.instantiateInitialViewController()
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.rootViewController = vc
+        self.window?.makeKeyAndVisible()
         return true
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
-        AppDelegate.coreDataManager.saveChangesIfAny(synchronously: true)
+        AppDelegate.coreDataManager?.saveChangesIfAny(synchronously: true)
     }
 }
-

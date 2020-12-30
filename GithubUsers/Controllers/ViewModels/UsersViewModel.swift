@@ -25,7 +25,7 @@ final class UsersViewModel {
     private var isFetchInProgress = false
 
     let coredataManager: CoreDataManager
-    let apiClient: GithubUsersClient
+    let apiClient: GithubApiClient
     weak var delegate: UsersViewModelDelegate?
     var imageCache = ImageCache.sharedInstance
 
@@ -36,7 +36,7 @@ final class UsersViewModel {
         return isFiltering
     }
 
-    init(apiPageSize: Int, apiClient: GithubUsersClient, coreDataManager: CoreDataManager) {
+    init(apiPageSize: Int, apiClient: GithubApiClient, coreDataManager: CoreDataManager) {
         self.apiPageSize = apiPageSize
         self.apiClient = apiClient
         self.coredataManager = coreDataManager

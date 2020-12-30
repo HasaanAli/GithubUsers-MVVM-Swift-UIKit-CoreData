@@ -18,7 +18,7 @@ protocol UserDetailsViewModelDelegate: AnyObject {
 /// View model for UserDetailsViewController.
 class UserDetailsViewModel {
     private let tag = "UserDetailsViewModel"
-    private let apiClient: GithubUsersClient
+    private let apiClient: GithubApiClient
     private let coredataManager: CoreDataManager
 
 
@@ -52,7 +52,7 @@ class UserDetailsViewModel {
     
     weak var delegate: UserDetailsViewModelDelegate?
 
-    init(cellViewModel: UserCellViewModelProtocol, indexPath: IndexPath, apiClient: GithubUsersClient, coredataManager: CoreDataManager) {
+    init(cellViewModel: UserCellViewModelProtocol, indexPath: IndexPath, apiClient: GithubApiClient, coredataManager: CoreDataManager) {
         self.tappedCellViewModel = cellViewModel
         self.tappedIndexPath = indexPath
         self.apiClient = apiClient

@@ -18,6 +18,14 @@ class UsersViewController: UIViewController, AlertCreator {
     /// View controller's view model.
     private var viewModel: UsersViewModel!
 
+    private var coredataManager: CoreDataManager = {
+        let coredatamanager = CoreDataManager()
+        AppDelegate.coreDataManager = coredatamanager
+        return coredatamanager
+    }()
+
+    private var githubApiClient = GithubApiClient()
+
     /// Is table view showing filtered data.
     private var isFiltered = false
     private var reachedEndOfData = false
@@ -40,8 +48,8 @@ class UsersViewController: UIViewController, AlertCreator {
 
         viewModel = UsersViewModel(
             apiPageSize: 30,
-            apiClient: AppDelegate.githubUsersClient,
-            coreDataManager: AppDelegate.coreDataManager)
+            apiClient: githubApiClient,
+            coreDataManager: coredataManager)
         viewModel.delegate = self
 
         networkAvailabilityLabel.isHidden = true
@@ -71,8 +79,8 @@ extension UsersViewController: UITableViewDelegate {
         let userDetailViewModel = UserDetailsViewModel(
             cellViewModel: tappedCellViewModel,
             indexPath: indexPath,
-            apiClient: AppDelegate.githubUsersClient,
-            coredataManager: AppDelegate.coreDataManager)
+            apiClient: githubApiClient,
+            coredataManager: coredataManager)
         
         userDetailViewModel.delegate = detailViewController
         detailViewController.viewModel = userDetailViewModel
@@ -123,7 +131,9 @@ extension UsersViewController: UsersViewModelDelegate {
 
     func onImageReady(at indexPath: IndexPath) {
         networkAvailabilityLabel.setFor(networkAvailable: true)
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+        if let visibleRows = tableView.indexPathsForVisibleRows, visibleRows.contains(indexPath) {
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
     }
 
     func onNoDataChanged() {

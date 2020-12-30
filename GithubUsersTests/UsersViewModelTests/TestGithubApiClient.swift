@@ -9,7 +9,7 @@
 @testable import GithubUsers
 import XCTest
 
-class TestGithubApiClient: GithubUsersClient {
+class TestGithubApiClient: GithubApiClient {
     var calledFetchUsers = false
     var fetchUsersExpectation: XCTestExpectation?
     var fetchUsersResult: Result<[User], DataResponseError>?

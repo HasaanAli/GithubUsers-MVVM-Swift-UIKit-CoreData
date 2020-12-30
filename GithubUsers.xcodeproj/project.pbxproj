@@ -32,7 +32,7 @@
 		053FE8FB258DA1F700A1ACC3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 053FE8F9258DA1F600A1ACC3 /* LaunchScreen.storyboard */; };
 		053FE8FE258DA2B600A1ACC3 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 053FE8FD258DA2B600A1ACC3 /* Default-568h@2x.png */; };
 		053FE904258DA6D200A1ACC3 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE903258DA6D200A1ACC3 /* User.swift */; };
-		053FE906258DA7D000A1ACC3 /* GithubUsersClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE905258DA7D000A1ACC3 /* GithubUsersClient.swift */; };
+		053FE906258DA7D000A1ACC3 /* GithubApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE905258DA7D000A1ACC3 /* GithubApiClient.swift */; };
 		053FE908258DA8B600A1ACC3 /* URLRequest+Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE907258DA8B600A1ACC3 /* URLRequest+Encode.swift */; };
 		053FE90C258DB07500A1ACC3 /* HTTPURLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE90B258DB07500A1ACC3 /* HTTPURLResponse.swift */; };
 		053FE910258DCE9E00A1ACC3 /* ResponseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */; };
@@ -98,7 +98,7 @@
 		053FE8FA258DA1F600A1ACC3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		053FE8FD258DA2B600A1ACC3 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		053FE903258DA6D200A1ACC3 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		053FE905258DA7D000A1ACC3 /* GithubUsersClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubUsersClient.swift; sourceTree = "<group>"; };
+		053FE905258DA7D000A1ACC3 /* GithubApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GithubApiClient.swift; sourceTree = "<group>"; };
 		053FE907258DA8B600A1ACC3 /* URLRequest+Encode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLRequest+Encode.swift"; sourceTree = "<group>"; };
 		053FE90B258DB07500A1ACC3 /* HTTPURLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPURLResponse.swift; sourceTree = "<group>"; };
 		053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseError.swift; sourceTree = "<group>"; };
@@ -245,7 +245,7 @@
 		053FE8F8258D302B00A1ACC3 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				053FE905258DA7D000A1ACC3 /* GithubUsersClient.swift */,
+				053FE905258DA7D000A1ACC3 /* GithubApiClient.swift */,
 				053FE907258DA8B600A1ACC3 /* URLRequest+Encode.swift */,
 				053FE90B258DB07500A1ACC3 /* HTTPURLResponse.swift */,
 				053FE90F258DCE9E00A1ACC3 /* ResponseError.swift */,
@@ -461,7 +461,7 @@
 				05204C0F2592243300836DA6 /* DefaultUserCellViewModel.swift in Sources */,
 				05BFE58B2590758E00BF4E48 /* LoadingTableViewCell.swift in Sources */,
 				053FE913258DD87400A1ACC3 /* AlertCreator.swift in Sources */,
-				053FE906258DA7D000A1ACC3 /* GithubUsersClient.swift in Sources */,
+				053FE906258DA7D000A1ACC3 /* GithubApiClient.swift in Sources */,
 				053FE918258F9CC300A1ACC3 /* CoreDataManager.swift in Sources */,
 				053FE904258DA6D200A1ACC3 /* User.swift in Sources */,
 				05376416258D18BE001E028E /* UsersViewController.swift in Sources */,
@@ -646,6 +646,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsers/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsers;
@@ -660,6 +661,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsers/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsers;
@@ -675,7 +677,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsersTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersTests;
@@ -693,7 +697,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsersTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersTests;
@@ -709,6 +715,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsersUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersUITests;
@@ -724,6 +731,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HSU4V3976U;
 				INFOPLIST_FILE = GithubUsersUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mycompany.GithubUsersUITests;

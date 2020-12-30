@@ -1,5 +1,5 @@
 //
-//  GithubUsersClient.swift
+//  GithubApiClient.swift
 //  GithubUsers
 //
 //  Created by Hasaan Ali on 12/19/20.
@@ -9,7 +9,7 @@
 import Foundation
 import Network
 
-open class GithubUsersClient {
+open class GithubApiClient {
     let serialQueue = DispatchQueue(label: "ApiClientQueue")
     let dispatchGroup = DispatchGroup()
 
