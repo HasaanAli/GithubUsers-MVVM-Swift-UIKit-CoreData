@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         if getenv("isTesting") != nil {
+            NSLog("isTesting launch argument passed, not instantiating vc")
             return true
         }
 

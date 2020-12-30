@@ -143,7 +143,7 @@ class CoreDataManager {
                 let fetchedEntities = try self.writeContext.fetch(fetchRequest)
 
                 guard fetchedEntities.count == 1 else {
-                    NSLog("%@ - ALARM !!! - update() fetched more than 1 entities, returning", self.tag)
+                    NSLog("%@ - ALARM !!! - update() fetched \(fetchedEntities.count) entities, returning", self.tag)
                     return
                 }
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct NotesUser: UserProtocol {
+struct NotesUser: UserProtocol, Equatable {
     let id: Int
     let login: String
     let avatarUrl: String

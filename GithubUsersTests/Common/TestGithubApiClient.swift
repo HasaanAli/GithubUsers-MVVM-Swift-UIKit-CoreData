@@ -17,19 +17,24 @@ class TestGithubApiClient: GithubApiClient {
     override func fetchUsers(since: Int, perPage: Int, completion: @escaping (Result<[User], DataResponseError>) -> Void) {
         calledFetchUsers = true
         guard let result = fetchUsersResult else {
-            return
+            fatalError("Must set fetchUsersResult")
         }
         completion(result)
         fetchUsersExpectation?.fulfill()
    }
-}
 
-extension TestGithubApiClient {
-    static let apiUsersTestData: [User] = {
-        var users = [User]()
-        for i in 0..<10000 {
-            users.append(User(id: i, login: "user\(i)login", avatarUrl: "user\(i)avatarurl"))
+    var calledFetchImage = false
+    var calledFetchImageWithUrlString: String?
+    var fetchImageExpectation: XCTestExpectation?
+    var fetchImageResult: Result<Data, DataResponseError>?
+
+    override func fetchImage(urlString: String, completion: @escaping (Result<Data, DataResponseError>) -> Void) {
+        calledFetchImage = true
+        calledFetchImageWithUrlString = urlString
+        guard let result = fetchImageResult else {
+            fatalError("Must set fetchImageResult")
         }
-        return users
-    }()
+        completion(result)
+        fetchImageExpectation?.fulfill()
+    }
 }

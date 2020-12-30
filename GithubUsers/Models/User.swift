@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct User: Decodable, UserProtocol {
+struct User: Decodable, UserProtocol, Equatable {
     let id: Int
     let login: String
     let avatarUrl: String

@@ -52,6 +52,11 @@
                BlueprintName = "GithubUsersTests"
                ReferencedContainer = "container:GithubUsers.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "UsersViewModelTests/testFetchImagesFromApiIfMissingImageInDatabaseUsers()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
          <TestableReference
             skipped = "NO">

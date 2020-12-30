@@ -174,7 +174,7 @@ final class UsersViewModel {
     }
 
     /// Loads images from api.
-    func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
+    private func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
             let avatarUrl = cellViewModel(at: indexPath.row).userp.avatarUrl
             apiClient.fetchImage(urlString: avatarUrl) { result in
@@ -257,11 +257,11 @@ final class UsersViewModel {
             var notesContainSearchText = false
             switch $0.userp {
             case let notesUser as NotesUser:
-                notesContainSearchText = notesUser.notes.contains(searchText.lowercased())
+                notesContainSearchText = notesUser.notes.lowercased().contains(searchText.lowercased())
             case let invertedUser as InvertedUser:
-                notesContainSearchText = invertedUser.notes.contains(searchText.lowercased())
+                notesContainSearchText = invertedUser.notes.lowercased().contains(searchText.lowercased())
             default:
-                break
+                break // No other userp has notes yet.
             }
             return loginContainsSearchText || notesContainSearchText
         }

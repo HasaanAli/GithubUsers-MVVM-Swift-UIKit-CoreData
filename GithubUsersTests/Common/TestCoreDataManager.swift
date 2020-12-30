@@ -6,15 +6,13 @@
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
-import CoreData
+
 @testable import GithubUsers
+import CoreData
+import UIKit
 
 class TestCoreDataManager: CoreDataManager {
     let tag = "TestCoreDataManager"
-    var calledFetchAllUsers: Bool = false
-    var fetchAllUsersFixture: [UserProtocol]?
-
-    var insertedUsersFixture: [UserProtocol]?
 
     override init() {
         super.init()
@@ -25,18 +23,35 @@ class TestCoreDataManager: CoreDataManager {
         container.persistentStoreDescriptions = [inMemoryStoreDesc]
         container.loadPersistentStores { storeDesc, error in
             if let error = error as NSError? {
-                fatalError("Error at loading store In-Memory store: \(error)")
+                fatalError("Error at loading In-Memory store: \(error)")
             }
         }
-        persistentContainer = container
+        persistentContainer = container // Useful when we're testing core data stack itself
     }
+
+    var calledFetchAllUsers: Bool = false
+    var fetchAllUsersFixture: [UserProtocol]?
 
     override func fetchAllUsers() -> [UserProtocol]? {
         calledFetchAllUsers = true
         return fetchAllUsersFixture
     }
 
+    var insertedUsers: [UserProtocol]?
+
     override func insert(users: [UserProtocol]) {
-        insertedUsersFixture = users
+        if insertedUsers == nil {
+            insertedUsers = users
+        } else { // twice insert detection
+            insertedUsers = nil
+        }
+    }
+
+    var lastUpdatedUser: UserProtocol?
+    var updatedUsersCount: Int = 0
+
+    override func update(userp: UserProtocol) {
+        lastUpdatedUser = userp
+        updatedUsersCount += 1
     }
 }
