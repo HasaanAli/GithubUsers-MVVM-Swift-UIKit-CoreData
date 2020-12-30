@@ -19,8 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        AppDelegate.coreDataManager.saveWriteContext()
+    func applicationWillResignActive(_ application: UIApplication) {
+        AppDelegate.coreDataManager.saveChangesIfAny(synchronously: true)
     }
 }
 

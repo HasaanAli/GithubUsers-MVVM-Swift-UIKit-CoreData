@@ -38,9 +38,10 @@ class UsersViewController: UIViewController, AlertCreator {
         tableView.dataSource = self
         tableView.delegate = self
 
-        viewModel = UsersViewModel(apiPageSize: 30)
-        viewModel.coredataManager = AppDelegate.coreDataManager
-        viewModel.apiClient = AppDelegate.githubUsersClient
+        viewModel = UsersViewModel(
+            apiPageSize: 30,
+            apiClient: AppDelegate.githubUsersClient,
+            coreDataManager: AppDelegate.coreDataManager)
         viewModel.delegate = self
 
         networkAvailabilityLabel.isHidden = true
@@ -67,7 +68,13 @@ extension UsersViewController: UITableViewDelegate {
 
         // Tapped cell's cellViewModel.
         let tappedCellViewModel = viewModel.cellViewModel(at: indexPath.row)
-        let userDetailViewModel = UserDetailsViewModel(cellViewModel: tappedCellViewModel, indexPath: indexPath, delegate: detailViewController)
+        let userDetailViewModel = UserDetailsViewModel(
+            cellViewModel: tappedCellViewModel,
+            indexPath: indexPath,
+            apiClient: AppDelegate.githubUsersClient,
+            coredataManager: AppDelegate.coreDataManager)
+        
+        userDetailViewModel.delegate = detailViewController
         detailViewController.viewModel = userDetailViewModel
 
         detailViewController.delegate = self

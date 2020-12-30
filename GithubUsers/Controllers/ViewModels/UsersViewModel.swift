@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol UsersViewModelDelegate: class {
+protocol UsersViewModelDelegate: AnyObject {
     func onCellViewModelsChanged()
     func onCellViewModelsUpdated(at indexPaths: [IndexPath])
     func onImageReady(at indexPath: IndexPath)
@@ -24,8 +24,8 @@ final class UsersViewModel {
     private var ufCellViewModels: [UserCellViewModelProtocol]
     private var isFetchInProgress = false
 
-    var coredataManager: CoreDataManager?
-    var apiClient: GithubUsersClient?
+    let coredataManager: CoreDataManager
+    let apiClient: GithubUsersClient
     weak var delegate: UsersViewModelDelegate?
     var imageCache = ImageCache.sharedInstance
 
@@ -36,8 +36,10 @@ final class UsersViewModel {
         return isFiltering
     }
 
-    init(apiPageSize: Int) {
+    init(apiPageSize: Int, apiClient: GithubUsersClient, coreDataManager: CoreDataManager) {
         self.apiPageSize = apiPageSize
+        self.apiClient = apiClient
+        self.coredataManager = coreDataManager
         ufCellViewModels = []
         filteredCellViewModels = []
     }
@@ -71,8 +73,10 @@ final class UsersViewModel {
             return
         }
 
+        // TODO: Use background queue, add hasData(since:), add limit to fetchAllUsers
+
         // load from database first time when ufCellViewModels array is empty
-        if ufCellViewModels.count == 0, let dbUsers = coredataManager?.fetchAllUsers(), dbUsers.count > 0 {
+        if ufCellViewModels.count == 0, let dbUsers = coredataManager.fetchAllUsers(), dbUsers.count > 0 {
             var index = 0
             var missingImagesIndices = [Int]()
             for dbUser in dbUsers {
@@ -158,7 +162,7 @@ final class UsersViewModel {
                     index += 1
                 }
 
-                self.coredataManager?.insert(users: newUsers) //Save to db.
+                self.coredataManager.insert(users: newUsers) //Save to db.
                 DispatchQueue.main.async {
                     self.delegate?.onCellViewModelsChanged()
                 }
@@ -166,14 +170,14 @@ final class UsersViewModel {
                 self.loadImages(forUsersAtIndexPaths: newIndexPaths)
             }
         }
-        apiClient?.fetchUsers(since: lastMaxUserId, perPage: apiPageSize, completion: fetchUsersCompletionBlock)
+        apiClient.fetchUsers(since: lastMaxUserId, perPage: apiPageSize, completion: fetchUsersCompletionBlock)
     }
 
     /// Loads images from api.
     func loadImages(forUsersAtIndexPaths indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
             let avatarUrl = cellViewModel(at: indexPath.row).userp.avatarUrl
-            apiClient?.fetchImage(urlString: avatarUrl) { result in
+            apiClient.fetchImage(urlString: avatarUrl) { result in
                 switch result {
                 case .success(let imageData):
                     if let image = UIImage(data: imageData) {
@@ -182,7 +186,7 @@ final class UsersViewModel {
                         userp.image = image
                         self.ufCellViewModels[indexPath.row].userp = userp //update view model
                         self.imageCache.save(image: image, forKey: avatarUrl)
-                        self.coredataManager?.update(userp: userp) // update user image in db
+                        self.coredataManager.update(userp: userp) // update user image in db
                         DispatchQueue.main.async {
                             self.delegate?.onImageReady(at: indexPath)
                         }

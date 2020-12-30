@@ -15,7 +15,7 @@ class LoadingTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         // Initialization code
-        let indicatorView = UIActivityIndicatorView(style: .gray)
+        let indicatorView = UIActivityIndicatorView(style: .medium)
         self.indicatorView = indicatorView
         indicatorView.color = UIColor.purple
         indicatorView.hidesWhenStopped = true

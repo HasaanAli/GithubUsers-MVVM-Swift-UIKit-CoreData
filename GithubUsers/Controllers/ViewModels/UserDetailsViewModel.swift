@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-protocol UserDetailsViewModelDelegate {
+protocol UserDetailsViewModelDelegate: AnyObject {
     func onLoadDetailsSuccess(userDetails: UserDetails)
     func onLoadDetailsFailed(error: DataResponseError)
     func onNotesChanged(to notes: String)
@@ -18,8 +18,8 @@ protocol UserDetailsViewModelDelegate {
 /// View model for UserDetailsViewController.
 class UserDetailsViewModel {
     private let tag = "UserDetailsViewModel"
-    var apiClient = AppDelegate.githubUsersClient
-    var coredataManager = AppDelegate.coreDataManager
+    private let apiClient: GithubUsersClient
+    private let coredataManager: CoreDataManager
 
 
     var image: UIImage? {
@@ -50,12 +50,13 @@ class UserDetailsViewModel {
     // Private so that no one can reassign from outside
     private var tappedCellViewModel: UserCellViewModelProtocol // for unfiltered index path
     
-    let delegate: UserDetailsViewModelDelegate
+    weak var delegate: UserDetailsViewModelDelegate?
 
-    init(cellViewModel: UserCellViewModelProtocol, indexPath: IndexPath, delegate: UserDetailsViewModelDelegate) {
+    init(cellViewModel: UserCellViewModelProtocol, indexPath: IndexPath, apiClient: GithubUsersClient, coredataManager: CoreDataManager) {
         self.tappedCellViewModel = cellViewModel
         self.tappedIndexPath = indexPath
-        self.delegate = delegate
+        self.apiClient = apiClient
+        self.coredataManager = coredataManager
     }
 
     func fetchDetails() {
@@ -66,12 +67,12 @@ class UserDetailsViewModel {
                 userDetails.image = self.image
                 userDetails.notes = self.notes
                 DispatchQueue.main.async {
-                    self.delegate.onLoadDetailsSuccess(userDetails: userDetails)
+                    self.delegate?.onLoadDetailsSuccess(userDetails: userDetails)
                 }
             case .failure(let error):
                 NSLog("%@ fetchDetails - error \(error)", self.tag)
                 DispatchQueue.main.async {
-                    self.delegate.onLoadDetailsFailed(error: error)
+                    self.delegate?.onLoadDetailsFailed(error: error)
                 }
             }
         }
@@ -98,6 +99,8 @@ class UserDetailsViewModel {
         // Now send the new userp to db
         coredataManager.update(userp: tappedCellViewModel.userp)
         // Call delegate
-        delegate.onNotesChanged(to: notes)
+        DispatchQueue.main.async {
+            self.delegate?.onNotesChanged(to: notes)
+        }
     }
 }

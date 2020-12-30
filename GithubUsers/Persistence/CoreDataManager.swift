@@ -14,10 +14,9 @@ class CoreDataManager {
     public static let modelName = "GithubUsers"
     static let userEntityName = "UserEntity"
     static let userEntityKey_Id = "id"
-    static let userEntityKey_Login = "login"
-    static let userEntityKey_AvatarUrl = "avatarUrl"
-    static let userEntityKey_ImageData = "imageData"
-    static let userEntityKey_Notes = "notes"
+
+    ///Last time update(user:) was called.
+    private var lastSaved: Date? = nil
 
     init() {}
 
@@ -48,116 +47,66 @@ class CoreDataManager {
         return persistentContainer.newBackgroundContext()
     }()
 
-    /// Uses performAndWait and writeContext.hasChanges to save writeContext.
-    func saveWriteContext() {
-        /**
-         Use performAndWait so that if AppDelegate calls us from within, for example, appWillTerminate, then we should wait and save the context changes.
-         */
-        writeContext.performAndWait {
+    /// Save changes if any. Use synchronously=true when calling from AppDelegate.didEnterBackground etc.
+    func saveChangesIfAny(synchronously: Bool) {
+        let saveWriteContext = {
             if self.writeContext.hasChanges {
                 do {
                     try self.writeContext.save()
+                    self.lastSaved = Date()
                     NSLog("%@ - Saved writeContext", self.tag)
                 } catch let nserror as NSError {
                     NSLog("%@ - Failed at saveWriteContext() - \(nserror), \(nserror.userInfo)", self.tag)
                 }
             }
         }
+        if synchronously {
+            writeContext.performAndWait { saveWriteContext() }
+        } else {
+            writeContext.perform { saveWriteContext() }
+        }
     }
 
     /// Can be used from UI thread.
     func insert(users: [UserProtocol]) {
-        for userp in users {
-            let entity = NSEntityDescription.entity(forEntityName: CoreDataManager.userEntityName, in: writeContext)!
-            let userObject = NSManagedObject(entity: entity, insertInto: writeContext)
-            if let userEntity = userObject as? UserEntity {
-                print("insert - cast to UserEntity successful")
-            } else {
-                print("insert - cast to UserEntity failed")
-            }
-
-            userObject.setValue(userp.id, forKeyPath: CoreDataManager.userEntityKey_Id)
-            userObject.setValue(userp.login, forKeyPath: CoreDataManager.userEntityKey_Login)
-            userObject.setValue(userp.avatarUrl, forKeyPath: CoreDataManager.userEntityKey_AvatarUrl)
-            if let image = userp.image {
-                let imageData = image.jpegData(compressionQuality: 0.7); // 0.7 is JPG quality
-                userObject.setValue(imageData, forKeyPath: CoreDataManager.userEntityKey_ImageData)
-            }
-            if let notesUser = userp as? NotesUser {
-                userObject.setValue(notesUser.notes, forKeyPath: CoreDataManager.userEntityKey_Notes)
-            }
-        }// end for
-
-        NSLog("%@ - inserted users to writeContext")
-    }
-
-    func update(userp: UserProtocol) {
-        let tag = "CoreDataManager.update(user:) - "
-
         writeContext.perform {
-            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: CoreDataManager.userEntityName)
-            let predicate = NSPredicate(format: "id == %d", userp.id)
-            fetchRequest.predicate = predicate
-
-            do {
-                let fetchedEntities = try self.writeContext.fetch(fetchRequest) as! [UserEntity] //TODO use guard, no force-cast
-                if fetchedEntities.count > 1 {
-                    NSLog("%@ - ALARM !!! - update() fetched more than 1 entities", tag)
-                }
-
-                guard let userEntity = fetchedEntities.first else {
-                    NSLog("%@ - update() - fetchedEntities.first is nil", tag)
-                    return
-                }
-
-                userEntity.login = userp.login
-                userEntity.avatarUrl = userp.avatarUrl
+            for userp in users {
+                let userObject = UserEntity(context: self.writeContext)
+                userObject.id = Int32(userp.id)
+                userObject.login = userp.login
+                userObject.avatarUrl = userp.avatarUrl
                 if let image = userp.image {
-                    let imageData = image.jpegData(compressionQuality: 0.7); // 0.7 is JPG quality
-                    userEntity.imageData = imageData
+                    userObject.imageData = image.jpegDataBetter
                 }
+                if let notesUser = userp as? NotesUser {
+                    userObject.notes = notesUser.notes
+                }
+            }// end for
 
-                switch userp {
-                case is User:
-                    userEntity.notes = nil
-                case let invertedUser as InvertedUser:
-                    userEntity.notes = invertedUser.notes
-                case let notesUser as NotesUser:
-                    userEntity.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
-                default:
-                    NSLog("%@ switch userp default case run !!", tag)
-                }
-                NSLog("%@ Updated userEntity", tag)
-            } catch let error as NSError {
-                NSLog("%@ Failed. Error: \(error)", tag)
-                NSLog("error.userInfo = %@", error.userInfo)
-            }
+            NSLog("%@ - inserted users to writeContext")
+            self.saveChangesIfAny(synchronously: false)
         }
     }
 
     func fetchAllUsers() -> [UserProtocol]? {
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "UserEntity")
+        let fetchRequest = NSFetchRequest<UserEntity>(entityName: CoreDataManager.userEntityName)
+
         let sortById = NSSortDescriptor(key: CoreDataManager.userEntityKey_Id, ascending: true)
         fetchRequest.sortDescriptors = [sortById]
 
         do {
             let userEntities = try readContext.fetch(fetchRequest)
-            if let userEntities = userEntities as? [UserEntity] {
-                print("fetchAll - cast to UserEntities successful")
-            } else {
-                print("fetchAll - cast to UserEntities failed")
-            }
 
             var users = [UserProtocol]()
             var i = 0 // for inverted users
             for userEntity in userEntities {
-                let id = userEntity.value(forKey: "id") as? Int
-                let login = userEntity.value(forKey: "login") as? String
-                let avatarUrl = userEntity.value(forKey: "avatarUrl") as? String
-                let imageData = userEntity.value(forKey: "imageData") as? Data
-                let notes = userEntity.value(forKey: "notes") as? String
+                let id = Int(userEntity.id)
+                let login = userEntity.login
+                let avatarUrl = userEntity.avatarUrl
+                let imageData = userEntity.imageData
+                let notes = userEntity.notes
 
-                if let id = id, let login = login, let avatarUrl = avatarUrl {
+                if let login = login, let avatarUrl = avatarUrl {
                     if i.isForth { // for inverted avatar
                         var user = InvertedUser(id: id, login: login, avatarUrl: avatarUrl)
                         user.image = imageData !=  nil ? UIImage(data: imageData!) : nil
@@ -183,4 +132,53 @@ class CoreDataManager {
             return nil
         }
     }
+
+    func update(userp: UserProtocol) {
+        writeContext.perform {
+            let fetchRequest = NSFetchRequest<UserEntity>(entityName: CoreDataManager.userEntityName)
+            let predicate = NSPredicate(format: "\(CoreDataManager.userEntityKey_Id) == %d", userp.id)
+            fetchRequest.predicate = predicate
+
+            do {
+                let fetchedEntities = try self.writeContext.fetch(fetchRequest)
+
+                guard fetchedEntities.count == 1 else {
+                    NSLog("%@ - ALARM !!! - update() fetched more than 1 entities, returning", self.tag)
+                    return
+                }
+
+                guard let userEntity = fetchedEntities.first else {
+                    NSLog("%@ - update() - fetchedEntities.first is nil, returning", self.tag)
+                    return
+                }
+
+                userEntity.login = userp.login
+                userEntity.avatarUrl = userp.avatarUrl
+                if let image = userp.image {
+                    let imageData = image.jpegDataBetter
+                    userEntity.imageData = imageData
+                }
+
+                switch userp {
+                case is User:
+                    userEntity.notes = nil
+                case let invertedUser as InvertedUser:
+                    userEntity.notes = invertedUser.notes
+                case let notesUser as NotesUser:
+                    userEntity.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
+                default:
+                    NSLog("%@ - update() - switch userp default case run !!", self.tag)
+                }
+                NSLog("%@ - Updated userEntity", self.tag)
+            } catch let error as NSError {
+                NSLog("%@ update() - Failed. Error: \(error)", self.tag)
+            }
+
+            // Save changes if never saved or not saved in the last 30 seconds
+            if self.lastSaved == nil || Date().timeIntervalSince(self.lastSaved!) > 30 {
+                self.saveChangesIfAny(synchronously: false)
+            }
+        }
+    }
+
 }
