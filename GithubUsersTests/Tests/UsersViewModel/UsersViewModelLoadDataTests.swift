@@ -10,9 +10,11 @@ import XCTest
 @testable import GithubUsers
 
 class UsersViewModelTests: XCTestCase {
+
     var testCoreDataManager = TestCoreDataManager()
     var testApiClient = TestGithubApiClient()
     var testUVMDelegate = TestUsersViewModelDelegate()
+
     lazy var usersViewModel: UsersViewModel = {
         let uvm = UsersViewModel(
             apiPageSize: 5,
@@ -81,7 +83,7 @@ class UsersViewModelTests: XCTestCase {
 
         usersViewModel.loadData()
 
-        let insertedUsers = testCoreDataManager.insertedUsers!
+        let insertedUsers = testCoreDataManager.lastInsertedUsers!
         XCTAssertEqual(insertedUsers.count, apiUsers.count)
         for i in 0..<apiUsers.count {
             XCTAssertEqual(insertedUsers[i].id, apiUsers[i].id)

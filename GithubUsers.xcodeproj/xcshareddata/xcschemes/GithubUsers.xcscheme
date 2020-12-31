@@ -36,15 +36,17 @@
             ReferencedContainer = "container:GithubUsers.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "isTesting"
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "isTesting"
+            value = "YES"
             isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <Testables>
          <TestableReference
-            skipped = "NO">
+            skipped = "NO"
+            testExecutionOrdering = "random">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "05376426258D18BE001E028E"
@@ -53,6 +55,12 @@
                ReferencedContainer = "container:GithubUsers.xcodeproj">
             </BuildableReference>
             <SkippedTests>
+               <Test
+                  Identifier = "UserDetailsViewModelTests/testLoadDetailsDecodingError()">
+               </Test>
+               <Test
+                  Identifier = "UserDetailsViewModelTests/testLoadDetailsNetworkError()">
+               </Test>
                <Test
                   Identifier = "UsersViewModelTests/testFetchImagesFromApiIfMissingImageInDatabaseUsers()">
                </Test>

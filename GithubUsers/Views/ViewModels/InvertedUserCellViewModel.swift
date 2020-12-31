@@ -12,9 +12,9 @@ class InvertedUserCellViewModel: UserCellViewModelProtocol {
     var userp: UserProtocol
     let unfilteredIndex: Int
 
-    init(invertedUser: InvertedUser, index: Int) {
+    init(invertedUser: InvertedUser, unfilteredIndex: Int) {
         self.userp = invertedUser
-        self.unfilteredIndex = index
+        self.unfilteredIndex = unfilteredIndex
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {

@@ -8,8 +8,9 @@
 
 import UIKit
 
-protocol UserDetailsViewControllerDelegate {
-    func onNotesUpdated(with notes: String, for cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath)
+protocol UserDetailsViewControllerDelegate: AnyObject {
+    func onCellViewModelChanged(to cellViewModel: UserCellViewModelProtocol,
+                                atVisibleIndexPath visibleIndexPath: IndexPath)
 }
 
 class UserDetailsViewController: UIViewController {
@@ -26,7 +27,7 @@ class UserDetailsViewController: UIViewController {
     @IBOutlet weak var networkAvailabilityLabel: NetworkAvailabilityView!
 
     var viewModel: UserDetailsViewModel?
-    var delegate: UserDetailsViewControllerDelegate?
+    weak var delegate: UserDetailsViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +39,6 @@ class UserDetailsViewController: UIViewController {
         profileImageView.image = viewModel?.image
         notesTextView.text = viewModel?.notes
         viewModel?.fetchDetails()
-        //TODO: Register with Reachability instance
     }
     
     @IBAction func onSave(_ sender: Any) {
@@ -51,42 +51,48 @@ class UserDetailsViewController: UIViewController {
 
 extension UserDetailsViewController: UserDetailsViewModelDelegate {
     func onLoadDetailsSuccess(userDetails: UserDetails) {
-        networkAvailabilityLabel.setFor(networkAvailable: true)
-        // don't change isHidden
-        if let followers = userDetails.followers {
-            followersValueLabel.text = "\(followers)"
-        } else {
-            followersValueLabel.text = "?"
-        }
-
-        if let following = userDetails.following {
-            followingValueLabel.text = "\(following)"
-        } else {
-            followingValueLabel.text = "?"
-        }
-
-        bioTextView.text = userDetails.bio
-        activityIndicator.stopAnimating()
         let hiddenViews: [UIView] = [followingLabel, followingValueLabel, followersLabel, followersValueLabel, bioTextView]
-        hiddenViews.forEach { $0.isHidden = false }
+        DispatchQueue.main.async {
+            self.networkAvailabilityLabel.setFor(networkAvailable: true)
+            // don't change isHidden
+            if let followers = userDetails.followers {
+                self.followersValueLabel.text = "\(followers)"
+            } else {
+                self.followersValueLabel.text = "?"
+            }
+
+            if let following = userDetails.following {
+                self.followingValueLabel.text = "\(following)"
+            } else {
+                self.followingValueLabel.text = "?"
+            }
+
+            self.bioTextView.text = userDetails.bio
+            self.activityIndicator.stopAnimating()
+
+            hiddenViews.forEach { $0.isHidden = false }
+        }
     }
 
     func onLoadDetailsFailed(error: DataResponseError) {
-        switch error {
-        case .network:
-            networkAvailabilityLabel.setFor(networkAvailable: false)
-            networkAvailabilityLabel.isHidden = false
-        case .decoding:
-            networkAvailabilityLabel.showWith(customBadText: "Details parsing failed. Email at dev@g.com")
+        DispatchQueue.main.async {
+            switch error {
+            case .network:
+                self.networkAvailabilityLabel.setFor(networkAvailable: false)
+                self.networkAvailabilityLabel.isHidden = false
+            case .decoding:
+                self.networkAvailabilityLabel.showWith(customBadText: "Details parsing failed. Email at dev@g.com")
+            }
         }
         NSLog("onDetailsFailed - error: %@", error.description)
     }
 
-    func onNotesChanged(to notes: String) {
+    func onCellViewModelChanged(to userCellViewModel: UserCellViewModelProtocol) {
         guard let viewModel = viewModel else {
             NSLog("missing UserDetails viewModel")
             return
         }
-        delegate?.onNotesUpdated(with: notes, for: viewModel.tappedCellViewModell, at: viewModel.tappedIndexPath)
+        delegate?.onCellViewModelChanged(to: userCellViewModel,
+                                         atVisibleIndexPath: viewModel.tappedIndexPath)
     }
 }

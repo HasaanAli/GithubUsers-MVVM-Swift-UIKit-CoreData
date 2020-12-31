@@ -37,13 +37,13 @@ class TestCoreDataManager: CoreDataManager {
         return fetchAllUsersFixture
     }
 
-    var insertedUsers: [UserProtocol]?
+    var lastInsertedUsers: [UserProtocol]?
 
     override func insert(users: [UserProtocol]) {
-        if insertedUsers == nil {
-            insertedUsers = users
+        if lastInsertedUsers == nil {
+            lastInsertedUsers = users
         } else { // twice insert detection
-            insertedUsers = nil
+            lastInsertedUsers = nil
         }
     }
 

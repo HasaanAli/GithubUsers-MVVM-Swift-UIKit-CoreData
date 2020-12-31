@@ -116,47 +116,58 @@ extension UsersViewController: UITableViewDataSource {
 
 extension UsersViewController: UsersViewModelDelegate {
     func onCellViewModelsChanged() {
-        networkAvailabilityLabel.setFor(networkAvailable: true)
-        // don't change isHidden
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.networkAvailabilityLabel.setFor(networkAvailable: true)
+            // don't change isHidden
+            self.tableView.reloadData()
+        }
     }
 
     func onCellViewModelsUpdated(at indexPaths: [IndexPath]) {
-        networkAvailabilityLabel.setFor(networkAvailable: true)
-        tableView.reloadData()
-        // tableView.cellForRow(at: ind)
-        // TODO begin and end updates
-        // tableView.reloadRows(at: indexPaths, with: .automatic)
+        DispatchQueue.main.async {
+            self.networkAvailabilityLabel.setFor(networkAvailable: true)
+            self.tableView.reloadData()
+            // tableView.cellForRow(at: ind)
+            // TODO begin and end updates
+            // tableView.reloadRows(at: indexPaths, with: .automatic)
+        }
     }
 
     func onImageReady(at indexPath: IndexPath) {
-        networkAvailabilityLabel.setFor(networkAvailable: true)
-        if let visibleRows = tableView.indexPathsForVisibleRows, visibleRows.contains(indexPath) {
-            tableView.reloadRows(at: [indexPath], with: .automatic)
+        DispatchQueue.main.async {
+            self.networkAvailabilityLabel.setFor(networkAvailable: true)
+            if let visibleRows = self.tableView.indexPathsForVisibleRows, visibleRows.contains(indexPath) {
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
         }
     }
 
     func onNoDataChanged() {
-        networkAvailabilityLabel.setFor(networkAvailable: true)
         NSLog("%@ onNoDataChanged", tag)
         NSLog("%@ Will set reachedEndOfData true.", tag)
-        reachedEndOfData = true
-        // Reload tableview
-        let totalRows = tableView.numberOfRows(inSection: 0)
-        let lastRowIndexPath = IndexPath(row: totalRows - 1, section: 0)
-        tableView.beginUpdates()
-        tableView.deleteRows(at: [lastRowIndexPath], with: .middle)
-        tableView.endUpdates()
+
+        DispatchQueue.main.async {
+            self.networkAvailabilityLabel.setFor(networkAvailable: true)
+            self.reachedEndOfData = true
+            // Reload tableview
+            let totalRows = self.tableView.numberOfRows(inSection: 0)
+            let lastRowIndexPath = IndexPath(row: totalRows - 1, section: 0)
+            self.tableView.beginUpdates()
+            self.tableView.deleteRows(at: [lastRowIndexPath], with: .middle)
+            self.tableView.endUpdates()
+        }
     }
 
     func onLoadFailed(with error: DataResponseError) {
         NSLog("%@ onLoadFailed(with error:) - \(error.description)", tag)
-        switch error {
-        case .network: // Inform user about network & retry
-            networkAvailabilityLabel.setFor(networkAvailable: false)
-            networkAvailabilityLabel.isHidden = false
-        case .decoding:
-            networkAvailabilityLabel.showWith(customBadText: "Data parsing error. Please email dev@g.com")
+        DispatchQueue.main.async {
+            switch error {
+            case .network: // Inform user about network & retry
+                self.networkAvailabilityLabel.setFor(networkAvailable: false)
+                self.networkAvailabilityLabel.isHidden = false
+            case .decoding:
+                self.networkAvailabilityLabel.showWith(customBadText: "Data parsing error. Please email dev@g.com")
+            }
         }
     }
 }
@@ -168,8 +179,10 @@ extension UsersViewController: UISearchBarDelegate {
     }
 }
 
+// UsersViewController also can directly make its ViewModel a delegate to UserDetailsViewController,
+// but lets not do it for now
 extension UsersViewController: UserDetailsViewControllerDelegate {
-    func onNotesUpdated(with notes: String, for cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath) {
-        viewModel.update(notes: notes, for: cellViewModel, at: visibleIndexPath)
+    func onCellViewModelChanged(to cellViewModel: UserCellViewModelProtocol, atVisibleIndexPath visibleIndexPath: IndexPath) {
+        viewModel.update(cellViewModel: cellViewModel, at: visibleIndexPath)
     }
 }

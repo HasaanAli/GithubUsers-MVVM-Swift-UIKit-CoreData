@@ -41,4 +41,10 @@ struct InvertedUser: Decodable, UserProtocol, Equatable {
         let avatarUrl = try container.decode(String.self, forKey: .avatarUrl)
         self.init(id: id, login: login, avatarUrl: avatarUrl)
     }
+
+    func changing(notes: String) -> InvertedUser {
+        var newInvertedUser = self
+        newInvertedUser.notes = notes
+        return newInvertedUser
+    }
 }

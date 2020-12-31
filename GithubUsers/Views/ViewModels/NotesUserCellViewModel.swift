@@ -12,9 +12,9 @@ class NotesUserCellViewModel: UserCellViewModelProtocol {
     var userp: UserProtocol
     let unfilteredIndex: Int
 
-    init(notesUser: NotesUser, index: Int) {
+    init(notesUser: NotesUser, unfilteredIndex: Int) {
         self.userp = notesUser
-        self.unfilteredIndex = index
+        self.unfilteredIndex = unfilteredIndex
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {

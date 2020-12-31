@@ -22,4 +22,20 @@ struct NotesUser: UserProtocol, Equatable {
         self.image = image
         self.notes = notes
     }
+
+    init(user: User, withNotes notes: String) {
+        self.id = user.id
+        self.login = user.login
+        self.avatarUrl = user.avatarUrl
+        self.image = user.image
+        self.notes = notes
+    }
+
+    init(notesUser: NotesUser, withNotes notes: String) {
+        self.id = notesUser.id
+        self.login = notesUser.login
+        self.avatarUrl = notesUser.avatarUrl
+        self.image = notesUser.image
+        self.notes = notes
+    }
 }

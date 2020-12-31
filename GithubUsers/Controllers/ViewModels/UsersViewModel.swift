@@ -87,21 +87,20 @@ final class UsersViewModel {
 
                 switch dbUser {
                 case let user as User:
-                    ufCellViewModels.append(DefaultUserCellViewModel(user: user, index: index))
+                    ufCellViewModels.append(DefaultUserCellViewModel(user: user, unfilteredIndex: index))
                     index += 1
                 case let notesUser as NotesUser:
-                    ufCellViewModels.append(NotesUserCellViewModel(notesUser: notesUser, index: index))
+                    ufCellViewModels.append(NotesUserCellViewModel(notesUser: notesUser, unfilteredIndex: index))
                     index += 1
                 case let invertedUser as InvertedUser:
-                    ufCellViewModels.append(InvertedUserCellViewModel(invertedUser: invertedUser, index: index))
+                    ufCellViewModels.append(InvertedUserCellViewModel(invertedUser: invertedUser, unfilteredIndex: index))
                     index += 1
                 default:
                     NSLog("UsersViewModel - loadData() Error: Failed dbUser switch cast as one of concrete types")
                 }
             }
-            DispatchQueue.main.async {
-                self.delegate?.onCellViewModelsChanged()
-            }
+            delegate?.onCellViewModelsChanged()
+
             // Load missing images here
             let indexPaths = missingImagesIndices.map { IndexPath(row: $0, section: 0) }
             loadImages(forUsersAtIndexPaths: indexPaths)
@@ -132,17 +131,14 @@ final class UsersViewModel {
             switch result {
             case .failure(let error):
                 self.isFetchInProgress = false
-                DispatchQueue.main.async {
-                    self.delegate?.onLoadFailed(with: error) // delegate shows appropriate UI for this error.
-                }
+                self.delegate?.onLoadFailed(with: error) // delegate shows appropriate UI for this error.
+
             case .success(let newUsers):
                 self.isFetchInProgress = false
 
                 guard newUsers.count > 0 else { // we reached end of data
                     NSLog("loadUsersFromApi - success but no new user since=\(lastMaxUserId)")
-                    DispatchQueue.main.async {
-                        self.delegate?.onNoDataChanged()
-                    }
+                    self.delegate?.onNoDataChanged() // Inform delegate
                     return
                 }
                 // We have got new data
@@ -153,19 +149,17 @@ final class UsersViewModel {
                 for user in newUsers {
                     if index.isForth { // make inverted cell view model for every forth row
                         let invertedUser = InvertedUser(id: user.id, login: user.login, avatarUrl: user.avatarUrl, image: user.image)
-                        let invertedUserCellViewModel = InvertedUserCellViewModel(invertedUser: invertedUser, index: index)
+                        let invertedUserCellViewModel = InvertedUserCellViewModel(invertedUser: invertedUser, unfilteredIndex: index)
                         self.ufCellViewModels.append(invertedUserCellViewModel)
                     } else {
-                        let defaultUserCellViewModel = DefaultUserCellViewModel(user: user, index: index)
+                        let defaultUserCellViewModel = DefaultUserCellViewModel(user: user, unfilteredIndex: index)
                         self.ufCellViewModels.append(defaultUserCellViewModel)
                     }
                     index += 1
                 }
 
                 self.coredataManager.insert(users: newUsers) //Save to db.
-                DispatchQueue.main.async {
-                    self.delegate?.onCellViewModelsChanged()
-                }
+                self.delegate?.onCellViewModelsChanged()
                 let newIndexPaths = self.calculateIndexPathsToReload(appendCount: newUsers.count)
                 self.loadImages(forUsersAtIndexPaths: newIndexPaths)
             }
@@ -187,14 +181,10 @@ final class UsersViewModel {
                         self.ufCellViewModels[indexPath.row].userp = userp //update view model
                         self.imageCache.save(image: image, forKey: avatarUrl)
                         self.coredataManager.update(userp: userp) // update user image in db
-                        DispatchQueue.main.async {
-                            self.delegate?.onImageReady(at: indexPath)
-                        }
+                        self.delegate?.onImageReady(at: indexPath)
                     }
                 case .failure(let error):
-                    DispatchQueue.main.async {
-                        self.delegate?.onLoadFailed(with: error)
-                    }
+                    self.delegate?.onLoadFailed(with: error)
                 }
             }
         }
@@ -207,46 +197,17 @@ final class UsersViewModel {
         return (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
     }
 
-    func update(notes: String, for cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath) {
+    func update(cellViewModel: UserCellViewModelProtocol, at visibleIndexPath: IndexPath) {
         // Updating original unfiltered cellViewModel array is more important
-
-        ///Unfiltered index
         let ufIndex = cellViewModel.unfilteredIndex
-        let currentViewModel = ufCellViewModels[ufIndex]
-        let userp = currentViewModel.userp
+        ufCellViewModels[ufIndex] = cellViewModel
 
-        let id = userp.id
-        let login = userp.login
-        let avatarUrl = userp.avatarUrl
-        let image = userp.image
-        
-        // along the way, check isFiltering and update filtered array too
-        
-        if ufIndex.isForth { // make Inverted user, who may have notes
-            let invertedUser = InvertedUser(id: id, login: login, avatarUrl: avatarUrl, image: image, notes: notes)
-            let invertedUserCellViewModel = InvertedUserCellViewModel(invertedUser: invertedUser, index: ufIndex)
-            ufCellViewModels[ufIndex] = invertedUserCellViewModel
-            if isFiltering {
-                filteredCellViewModels[visibleIndexPath.row] = invertedUserCellViewModel
-            }
-        } else if notes.isEmpty { // make Default User, who doesn't have notes
-            let user = User(id: userp.id, login: userp.login, avatarUrl: userp.avatarUrl, image: image)
-            let defaultUserCellViewModel = DefaultUserCellViewModel(user: user, index: ufIndex)
-            ufCellViewModels[ufIndex] = defaultUserCellViewModel
-            if isFiltering {
-                filteredCellViewModels[visibleIndexPath.row] = defaultUserCellViewModel
-            }
-        } else { // make NotesUser
-            let notesUser = NotesUser(id: userp.id, login: userp.login, avatarUrl: userp.avatarUrl, notes: notes, image: image)
-            let notesUserCellViewModel = NotesUserCellViewModel(notesUser: notesUser, index: ufIndex)
-            ufCellViewModels[ufIndex] = notesUserCellViewModel
-            if isFiltering {
-                filteredCellViewModels[visibleIndexPath.row] = notesUserCellViewModel
-            }
+        // Update filtered cellViewModel array too
+        if isFiltering {
+            filteredCellViewModels[visibleIndexPath.row] = cellViewModel
         }
-        DispatchQueue.main.async {
-            self.delegate?.onCellViewModelsUpdated(at: [visibleIndexPath])
-        }
+
+        delegate?.onCellViewModelsUpdated(at: [visibleIndexPath])
     }
 
     func filterData(by searchText: String) {
@@ -265,8 +226,7 @@ final class UsersViewModel {
             }
             return loginContainsSearchText || notesContainSearchText
         }
-        DispatchQueue.main.async {
-            self.delegate?.onCellViewModelsChanged()
-        }
+        // Inform delegate
+        delegate?.onCellViewModelsChanged()
     }
 }

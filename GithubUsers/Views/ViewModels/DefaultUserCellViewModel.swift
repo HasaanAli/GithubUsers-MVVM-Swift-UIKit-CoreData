@@ -13,9 +13,9 @@ class DefaultUserCellViewModel: UserCellViewModelProtocol {
     var userp: UserProtocol
     let unfilteredIndex: Int
 
-    init(user: User, index: Int) {
+    init(user: User, unfilteredIndex: Int) {
         self.userp = user
-        self.unfilteredIndex = index
+        self.unfilteredIndex = unfilteredIndex
     }
 
     func cellForTableView(tableView: UITableView, atIndexPath indexPath: IndexPath) -> UITableViewCell {

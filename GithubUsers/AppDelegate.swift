@@ -16,11 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         if getenv("isTesting") != nil {
-            NSLog("isTesting launch argument passed, not instantiating vc")
+            NSLog("isTesting environment variable passed, not instantiating vc.")
             return true
         }
 
-        let storyboard = UIStoryboard.init(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let vc = storyboard.instantiateInitialViewController()
         self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window?.rootViewController = vc

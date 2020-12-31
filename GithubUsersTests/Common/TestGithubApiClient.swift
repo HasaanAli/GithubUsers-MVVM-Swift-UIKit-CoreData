@@ -23,7 +23,7 @@ class TestGithubApiClient: GithubApiClient {
         fetchUsersExpectation?.fulfill()
    }
 
-    var calledFetchImage = false
+    var calledFetchImage = false // TODO:
     var calledFetchImageWithUrlString: String?
     var fetchImageExpectation: XCTestExpectation?
     var fetchImageResult: Result<Data, DataResponseError>?
@@ -36,5 +36,16 @@ class TestGithubApiClient: GithubApiClient {
         }
         completion(result)
         fetchImageExpectation?.fulfill()
+    }
+
+    var calledFetchDetailsWithLogin: String?
+    var fetchDetailsApiResult: Result<UserDetails, DataResponseError>?
+    override func fetchUserDetails(login: String, completion: @escaping (Result<UserDetails, DataResponseError>) -> Void) {
+        calledFetchDetailsWithLogin = login
+        guard let result = fetchDetailsApiResult else {
+            XCTFail("Must set fetchDetailsApiResult, returning")
+            return
+        }
+        completion(result)
     }
 }

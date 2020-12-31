@@ -27,6 +27,13 @@ struct User: Decodable, UserProtocol, Equatable {
         self.image = image
     }
 
+    init(notesUser: NotesUser) {
+        self.id = notesUser.id
+        self.login = notesUser.login
+        self.avatarUrl = notesUser.avatarUrl
+        self.image = notesUser.image
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let id = try container.decode(Int.self, forKey: .id)
