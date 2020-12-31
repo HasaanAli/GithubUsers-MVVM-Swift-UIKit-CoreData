@@ -244,16 +244,101 @@ class CoreDataManagerTests: XCTestCase {
 
     // MARK:- Update tests
 
-    /**
-update triggers save, think save logic on update
-     test updating user
-     */
+    func testUpdateStopsIfNoUserExistsWithGivenId() {
+        let user = User(id: 1, login: "somelogin", avatarUrl: "someurl")
+        let userEntity = testCoreDataManager.update(userp: user)
+        XCTAssertNil(userEntity)
+    }
 
-    // MARK:-
+    func testUpdateStopsIfMoreThan1UsersExistWithGivenId() {
+        let user1 = User(id: 11, login: "somelogin", avatarUrl: "someurl")
+        let user2 = User(id: 11, login: "somelogin", avatarUrl: "someurl")
+
+        expectation(forNotification: .NSManagedObjectContextDidSave,
+                    object: testCoreDataManager.writeContext) { _ in
+            return true
+        }
+
+        testCoreDataManager.insert(users: [user1, user2])
+
+        waitForExpectations(timeout: 2) { error in
+            XCTAssertNil(error, "Save did not occur")
+        }
+
+        let userEntity = testCoreDataManager.update(userp: user1)
+        XCTAssertNil(userEntity)
+    }
+
+    func testUpdateWorksIfExactly1UserExistsWithGivenId() {
+        let sameId = 11
+        let user1 = NotesUser(id: sameId, login: "somelogin", avatarUrl: "someurl", notes: "somenotes")
+
+        expectation(forNotification: .NSManagedObjectContextDidSave,
+                    object: testCoreDataManager.writeContext) { _ in
+            return true
+        }
+
+        testCoreDataManager.insert(users: [user1])
+
+        waitForExpectations(timeout: 2) { error in
+            XCTAssertNil(error, "Save did not occur")
+        }
+
+        let updatedUser = User(id: sameId, login: "some new login", avatarUrl: "somenewavatarurl", image: TestData.image)
+
+        // Act/assert
+        guard let userEntity = testCoreDataManager.update(userp: updatedUser) else {
+            XCTFail("update(userp:) returned nil unexpectedly")
+            return
+        }
+
+        XCTAssertEqual(userEntity.id, Int32(updatedUser.id))
+        XCTAssertEqual(userEntity.login, updatedUser.login)
+        XCTAssertEqual(userEntity.avatarUrl, updatedUser.avatarUrl)
+        XCTAssertEqual(userEntity.imageData, TestData.image.jpegDataBetter)
+        XCTAssertNil(userEntity.notes)
+    }
+
+    func testSuccessfulUpdateTriggersSave() { // we'll change autoupdate time interval before calling update(userp:)
+        let sameId = 11
+        let user1 = NotesUser(id: sameId, login: "somelogin", avatarUrl: "someurl", notes: "somenotes")
+
+        expectation(forNotification: .NSManagedObjectContextDidSave,
+                    object: testCoreDataManager.writeContext) { _ in
+            return true
+        }
+
+        testCoreDataManager.insert(users: [user1])
+
+        // First, let the insert save notification get triggered
+        waitForExpectations(timeout: 2) { error in
+            XCTAssertNil(error, "Save did not occur")
+        }
+
+        // expectation for update()
+        expectation(forNotification: .NSManagedObjectContextDidSave,
+                    object: testCoreDataManager.writeContext) { _ in
+            return true
+        }
+        testCoreDataManager.onUpdateAutoSaveTimeInterval = 0 // Change default interval
+
+        let updatedUser = User(id: sameId, login: "some new login", avatarUrl: "somenewavatarurl", image: TestData.image)
+
+        // Act/assert
+        guard let _ = testCoreDataManager.update(userp: updatedUser) else {
+            XCTFail("update(userp:) returned nil unexpectedly")
+            return
+        }
+
+        // Now, wait for the context save notification due to update() call.
+        waitForExpectations(timeout: 0.5) { error in
+            XCTAssertNil(error, "Save did not occur")
+        }
+    }
+
+    // MARK:- Todos
     /**
      TODOs:
      test insert detects/skips duplicate id users
-
-
      */
 }

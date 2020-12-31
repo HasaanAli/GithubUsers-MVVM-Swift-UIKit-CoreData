@@ -10,13 +10,22 @@ import CoreData
 import UIKit
 
 class CoreDataManager {
-    private let tag = "CoreDataManager"
+    private let tag = String(describing: CoreDataManager.self)
     public static let modelName = "GithubUsers"
     static let userEntityName = "UserEntity"
     static let userEntityKey_Id = "id"
 
-    ///Last time update(user:) was called.
-    private var lastSaved: Date?
+    /// To control saving after call to update(user:)
+    var onUpdateAutoSaveTimeInterval: TimeInterval = 15
+
+    private var needsSave = false
+
+    lazy var onUpdateAutoSaveBlock: () -> Void = {
+        if self.needsSave {
+            self.needsSave = false
+            self.saveChangesIfAny(synchronously: false)
+        }
+    }
 
     init() {}
 
@@ -53,7 +62,7 @@ class CoreDataManager {
             if self.writeContext.hasChanges {
                 do {
                     try self.writeContext.save()
-                    self.lastSaved = Date()
+//                    self.lastSaved = Date()
                     NSLog("%@ - Saved writeContext", self.tag)
                 } catch let nserror as NSError {
                     NSLog("%@ - Failed at saveWriteContext() - \(nserror), \(nserror.userInfo)", self.tag)
@@ -136,7 +145,8 @@ class CoreDataManager {
         }
     }
 
-    func update(userp: UserProtocol) {
+    @discardableResult
+    func update(userp: UserProtocol) -> UserEntity? {
         let fetchRequest = NSFetchRequest<UserEntity>(entityName: CoreDataManager.userEntityName)
         let predicate = NSPredicate(format: "\(CoreDataManager.userEntityKey_Id) == %d", userp.id)
         fetchRequest.predicate = predicate
@@ -146,12 +156,12 @@ class CoreDataManager {
 
             guard fetchedEntities.count == 1 else {
                 NSLog("%@ - ALARM !!! - update() fetched \(fetchedEntities.count) entities, returning", self.tag)
-                return
+                return nil
             }
 
             guard let userEntity = fetchedEntities.first else {
                 NSLog("%@ - update() - fetchedEntities.first is nil, returning", self.tag)
-                return
+                return nil
             }
 
             userEntity.login = userp.login
@@ -172,16 +182,18 @@ class CoreDataManager {
                 NSLog("%@ - update() - switch userp default case run !!", self.tag)
             }
             NSLog("%@ - Updated userEntity", self.tag)
+
+            // Schedule auto save
+            if !needsSave { // if not already triggered by previous update
+                needsSave = true
+                DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + onUpdateAutoSaveTimeInterval,
+                                                           execute: onUpdateAutoSaveBlock)
+            }
+
+            return userEntity
         } catch let error as NSError {
             NSLog("%@ update() - Failed. Error: \(error)", self.tag)
+            return nil
         }
-
-        // Save changes if never saved or not saved in the last 30 seconds
-        if self.lastSaved == nil || Date().timeIntervalSince(self.lastSaved!) > 30 {
-            self.saveChangesIfAny(synchronously: false)
-        }
-        //        //Schedule auto save
-        //        writeContext.perform(<#T##aSelector: Selector##Selector#>, with: <#T##Any?#>, afterDelay: <#T##TimeInterval#>)
     }
-
 }

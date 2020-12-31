@@ -51,8 +51,9 @@ class MockCoreDataManager: CoreDataManager {
     var lastUpdatedUser: UserProtocol?
     var updatedUsersCount: Int = 0
 
-    override func update(userp: UserProtocol) {
+    override func update(userp: UserProtocol) -> UserEntity? {
         lastUpdatedUser = userp
         updatedUsersCount += 1
+        return nil
     }
 }
