@@ -11,29 +11,29 @@ import XCTest
 
 class UsersViewModelTests: XCTestCase {
 
-    var testCoreDataManager = TestCoreDataManager()
-    var testApiClient = TestGithubApiClient()
+    var mockCoreDataManager = MockCoreDataManager()
+    var mockApiClient = MockGithubApiClient()
     var testUVMDelegate = TestUsersViewModelDelegate()
 
     lazy var usersViewModel: UsersViewModel = {
         let uvm = UsersViewModel(
             apiPageSize: 5,
-            apiClient: self.testApiClient,
-            coreDataManager: self.testCoreDataManager)
+            apiClient: self.mockApiClient,
+            coreDataManager: self.mockCoreDataManager)
         uvm.delegate = self.testUVMDelegate
         return uvm
     }()
 
     override func setUp() {
         super.setUp()
-        testCoreDataManager = TestCoreDataManager()
-        testApiClient = TestGithubApiClient()
+        mockCoreDataManager = MockCoreDataManager()
+        mockApiClient = MockGithubApiClient()
         testUVMDelegate = TestUsersViewModelDelegate()
 
         usersViewModel = UsersViewModel(
             apiPageSize: 5,
-            apiClient: testApiClient,
-            coreDataManager: testCoreDataManager
+            apiClient: mockApiClient,
+            coreDataManager: mockCoreDataManager
         )
         usersViewModel.delegate = testUVMDelegate
     }
@@ -41,49 +41,49 @@ class UsersViewModelTests: XCTestCase {
     //MARK:- Load from Db and API tests
 
     func testLoadsFromDatabaseFirstTime() {
-        testCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
 
         usersViewModel.loadData()
 
-        assert(testCoreDataManager.calledFetchAllUsers)
+        assert(mockCoreDataManager.calledFetchAllUsers)
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.1)
     }
 
     func testDoesnotLoadFromApiFirstTimeIfDBhasRecords() {
-        testCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
 
         usersViewModel.loadData()
-        XCTAssertFalse(testApiClient.calledFetchUsers)
+        XCTAssertFalse(mockApiClient.calledFetchUsers)
     }
 
     func testLoadsFromApiFirstTimeIfDBhasZeroRecords() {
-        testCoreDataManager.fetchAllUsersFixture = [UserProtocol]()
-        testApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
-        testApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
+        mockCoreDataManager.fetchAllUsersFixture = [UserProtocol]()
+        mockApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
+        mockApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
 
         usersViewModel.loadData()
-        assert(testApiClient.calledFetchUsers)
+        assert(mockApiClient.calledFetchUsers)
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.1)
     }
 
     func testLoadsFromApiIfLoadFromDatabaseFails() { // fetchAllUsers gives nil
-        testCoreDataManager.fetchAllUsersFixture = nil
-        testApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
-        testApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
+        mockCoreDataManager.fetchAllUsersFixture = nil
+        mockApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
+        mockApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
 
         usersViewModel.loadData()
-        assert(testApiClient.calledFetchUsers)
+        assert(mockApiClient.calledFetchUsers)
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.1)
     }
 
     func testInsertsApiRecordsToDatabase() {
         let apiUsers: [User] = CommonTestData.defaultUsers
-        testApiClient.fetchUsersResult = Result.success(apiUsers)
-        testApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
+        mockApiClient.fetchUsersResult = Result.success(apiUsers)
+        mockApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
 
         usersViewModel.loadData()
 
-        let insertedUsers = testCoreDataManager.lastInsertedUsers!
+        let insertedUsers = mockCoreDataManager.lastInsertedUsers!
         XCTAssertEqual(insertedUsers.count, apiUsers.count)
         for i in 0..<apiUsers.count {
             XCTAssertEqual(insertedUsers[i].id, apiUsers[i].id)
@@ -94,30 +94,30 @@ class UsersViewModelTests: XCTestCase {
     }
 
     func testLoadFromApiSecondTime() { // if first time database had records
-        testCoreDataManager.fetchAllUsersFixture = [User(id: 1, login: "abc", avatarUrl: "some.url")]
-        testApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
-        testApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
+        mockCoreDataManager.fetchAllUsersFixture = [User(id: 1, login: "abc", avatarUrl: "some.url")]
+        mockApiClient.fetchUsersResult = ApiTestData.fetchUsersSuccessResult
+        mockApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
 
         usersViewModel.loadData() // first time
         usersViewModel.loadData() // second time
-        XCTAssert(testApiClient.calledFetchUsers)
+        XCTAssert(mockApiClient.calledFetchUsers)
     }
 
     // informs delegate when successfully loads 0 results from api
     func testSuccessfullyLoadingZeroResultsFromApi() {
-        testApiClient.fetchUsersResult = Result.success([])
+        mockApiClient.fetchUsersResult = Result.success([])
         usersViewModel.loadData()
-        assert(testApiClient.calledFetchUsers)
+        assert(mockApiClient.calledFetchUsers)
         wait(for: [testUVMDelegate.onNoDataChangedExpec], timeout: 0.1)
     }
 
     // informs delegate when fails to load results from api due to network
     func testHandlesNetworkError() {
         let resultNetworkFailure: Result<[User], DataResponseError> = Result.failure(.network)
-        testApiClient.fetchUsersResult = resultNetworkFailure
+        mockApiClient.fetchUsersResult = resultNetworkFailure
         usersViewModel.loadData()
 
-        assert(testApiClient.calledFetchUsers)
+        assert(mockApiClient.calledFetchUsers)
         wait(for: [testUVMDelegate.onLoadFailedExpec], timeout: 0.1)
 
         switch resultNetworkFailure {
@@ -131,11 +131,11 @@ class UsersViewModelTests: XCTestCase {
     // informs delegate when fails to load results from api due to decoding
     func testHandlesDecodingError() {
         let resultDecodingFailure: Result<[User], DataResponseError> = Result.failure(.decoding)
-        testApiClient.fetchUsersResult = resultDecodingFailure
+        mockApiClient.fetchUsersResult = resultDecodingFailure
 
         usersViewModel.loadData()
 
-        assert(testApiClient.calledFetchUsers)
+        assert(mockApiClient.calledFetchUsers)
         wait(for: [testUVMDelegate.onLoadFailedExpec], timeout: 0.1)
 
         switch resultDecodingFailure {
@@ -149,22 +149,22 @@ class UsersViewModelTests: XCTestCase {
     // MARK:- Loading images tests
 
     func testDoesnotFetchImagesFromApiIfNoMissingImageInDatabaseUsers() {
-        testCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
 
         usersViewModel.loadData()
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.01)
-        XCTAssertFalse(testApiClient.calledFetchImage) // TODO: wait verify not called
+        XCTAssertFalse(mockApiClient.calledFetchImage) // TODO: wait verify not called
         // try inverting expectation
     }
 
     func testFetchImagesFromApiIfMissingImageInDatabaseUsers() {
 //        let (missingImageUsers, missingImageIndices) = CommonTestData.dbUsersMissingImagesTestData
 ////        let (missingImageUsers, missingImageIndices) = ([User(id: 1, login: "login1", avatarUrl: "url1")], [0])
-//        testCoreDataManager.fetchAllUsersFixture = missingImageUsers
+//        mockCoreDataManager.fetchAllUsersFixture = missingImageUsers
 //
 //        let testImage = CommonTestData.image
 //        let fetchImageSuccessResult: Result<Data, DataResponseError> = Result.success(testImage.jpegDataBetter!)
-//        testApiClient.fetchImageResult = fetchImageSuccessResult
+//        mockApiClient.fetchImageResult = fetchImageSuccessResult
 //
 //
 //        var calledOnImageReadyExpectation = XCTestExpectation(description: "called on image ready expectation")
@@ -179,7 +179,7 @@ class UsersViewModelTests: XCTestCase {
 //        XCTAssertEqual(testUVMDelegate.numberOfTimesCalledOnImageReady, missingImageIndices.count)
 //
 ////        assert(testUVMDelegate.image)
-////        XCTAssertFalse(testApiClient.calledFetchImage) // TODO: wait verify not called
+////        XCTAssertFalse(mockApiClient.calledFetchImage) // TODO: wait verify not called
     }
 
 // MARK:- TODOs

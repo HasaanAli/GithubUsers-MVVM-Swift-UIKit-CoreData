@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		050AD198259C1A1800E30382 /* TestGithubApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD194259C1A1700E30382 /* TestGithubApiClient.swift */; };
+		050AD198259C1A1800E30382 /* MockGithubApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD194259C1A1700E30382 /* MockGithubApiClient.swift */; };
 		050AD199259C1A1800E30382 /* UsersViewModelLoadDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD195259C1A1700E30382 /* UsersViewModelLoadDataTests.swift */; };
 		050AD19A259C1A1800E30382 /* TestUsersViewModelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD196259C1A1700E30382 /* TestUsersViewModelDelegate.swift */; };
-		050AD19B259C1A1800E30382 /* TestCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD197259C1A1700E30382 /* TestCoreDataManager.swift */; };
+		050AD19B259C1A1800E30382 /* MockCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD197259C1A1700E30382 /* MockCoreDataManager.swift */; };
 		050AD19D259C257A00E30382 /* UIImage+jpegDataBetter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050AD19C259C257A00E30382 /* UIImage+jpegDataBetter.swift */; };
 		050E4BCD25927266007D01FC /* NetworkAvailabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050E4BCC25927266007D01FC /* NetworkAvailabilityView.swift */; };
 		05204C072591AF4200836DA6 /* NotesUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05204C062591AF4200836DA6 /* NotesUser.swift */; };
@@ -73,10 +73,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		050AD194259C1A1700E30382 /* TestGithubApiClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestGithubApiClient.swift; sourceTree = "<group>"; };
+		050AD194259C1A1700E30382 /* MockGithubApiClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockGithubApiClient.swift; sourceTree = "<group>"; };
 		050AD195259C1A1700E30382 /* UsersViewModelLoadDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UsersViewModelLoadDataTests.swift; sourceTree = "<group>"; };
 		050AD196259C1A1700E30382 /* TestUsersViewModelDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUsersViewModelDelegate.swift; sourceTree = "<group>"; };
-		050AD197259C1A1700E30382 /* TestCoreDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCoreDataManager.swift; sourceTree = "<group>"; };
+		050AD197259C1A1700E30382 /* MockCoreDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockCoreDataManager.swift; sourceTree = "<group>"; };
 		050AD19C259C257A00E30382 /* UIImage+jpegDataBetter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+jpegDataBetter.swift"; sourceTree = "<group>"; };
 		050E4BCC25927266007D01FC /* NetworkAvailabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityView.swift; sourceTree = "<group>"; };
 		05204C062591AF4200836DA6 /* NotesUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUser.swift; sourceTree = "<group>"; };
@@ -310,8 +310,8 @@
 			children = (
 				05518ECE259CD6EE00E6BC50 /* ApiTestData.swift */,
 				05518ECC259CC4E100E6BC50 /* CommonTestData.swift */,
-				050AD197259C1A1700E30382 /* TestCoreDataManager.swift */,
-				050AD194259C1A1700E30382 /* TestGithubApiClient.swift */,
+				050AD197259C1A1700E30382 /* MockCoreDataManager.swift */,
+				050AD194259C1A1700E30382 /* MockGithubApiClient.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -526,12 +526,12 @@
 				05518ECA259CC3B500E6BC50 /* UsersViewModelFilterDataTests.swift in Sources */,
 				05518ECD259CC4E100E6BC50 /* CommonTestData.swift in Sources */,
 				05518ECF259CD6EE00E6BC50 /* ApiTestData.swift in Sources */,
-				050AD19B259C1A1800E30382 /* TestCoreDataManager.swift in Sources */,
+				050AD19B259C1A1800E30382 /* MockCoreDataManager.swift in Sources */,
 				050AD199259C1A1800E30382 /* UsersViewModelLoadDataTests.swift in Sources */,
 				05518ED2259CEE3C00E6BC50 /* UserDetailsViewModelTests.swift in Sources */,
 				05518ED5259CF72400E6BC50 /* TestUserDetailsViewModelDelegate.swift in Sources */,
 				05F45B0A259DD075001C6102 /* CoreDataManagerTests.swift in Sources */,
-				050AD198259C1A1800E30382 /* TestGithubApiClient.swift in Sources */,
+				050AD198259C1A1800E30382 /* MockGithubApiClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

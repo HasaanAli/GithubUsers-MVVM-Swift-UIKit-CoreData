@@ -1,5 +1,5 @@
 //
-//  TestGithubApiClient.swift
+//  MockGithubApiClient.swift
 //  GithubUsersTests
 //
 //  Created by Hasaan Ali on 29/12/2020.
@@ -9,7 +9,7 @@
 @testable import GithubUsers
 import XCTest
 
-class TestGithubApiClient: GithubApiClient {
+class MockGithubApiClient: GithubApiClient {
     var calledFetchUsers = false
     var fetchUsersExpectation: XCTestExpectation?
     var fetchUsersResult: Result<[User], DataResponseError>?

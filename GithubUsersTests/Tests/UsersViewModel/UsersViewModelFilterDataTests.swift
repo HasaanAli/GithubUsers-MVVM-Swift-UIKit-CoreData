@@ -15,31 +15,31 @@ class UsersViewModelFilterDataTests: XCTestCase {
         [User(id: 1, login: "user1login", avatarUrl: "user1url", image: image),
          NotesUser(id: 2, login: "Xuser2login", avatarUrl: "user2url", notes: "user2notes", image: image),
          InvertedUser(id: 3, login: "user3login", avatarUrl: "someurl", image: image, notes: "Xuser3notes")]
-    var testCoreDataManager = TestCoreDataManager()
-    var testApiClient = TestGithubApiClient()
+    var mockCoreDataManager = MockCoreDataManager()
+    var mockApiClient = MockGithubApiClient()
     var testUVMDelegate = TestUsersViewModelDelegate()
     lazy var usersViewModel: UsersViewModel = {
         let uvm = UsersViewModel(
             apiPageSize: 5,
-            apiClient: self.testApiClient,
-            coreDataManager: self.testCoreDataManager)
+            apiClient: self.mockApiClient,
+            coreDataManager: self.mockCoreDataManager)
         uvm.delegate = self.testUVMDelegate
         return uvm
     }()
 
     override func setUp() {
         super.setUp()
-        testCoreDataManager = TestCoreDataManager()
-        testApiClient = TestGithubApiClient()
+        mockCoreDataManager = MockCoreDataManager()
+        mockApiClient = MockGithubApiClient()
         testUVMDelegate = TestUsersViewModelDelegate()
 
         usersViewModel = UsersViewModel(
             apiPageSize: 5,
-            apiClient: testApiClient,
-            coreDataManager: testCoreDataManager
+            apiClient: mockApiClient,
+            coreDataManager: mockCoreDataManager
         )
         usersViewModel.delegate = testUVMDelegate
-        testCoreDataManager.fetchAllUsersFixture = users
+        mockCoreDataManager.fetchAllUsersFixture = users
         usersViewModel.loadData()
 
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.1) // due to loadData

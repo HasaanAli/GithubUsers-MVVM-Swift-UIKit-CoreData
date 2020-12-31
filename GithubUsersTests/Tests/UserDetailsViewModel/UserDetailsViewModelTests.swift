@@ -11,8 +11,8 @@ import XCTest
 
 class UserDetailsViewModelTests: XCTestCase {
 
-    var testApiClient = TestGithubApiClient()
-    var testCoreDataManager = TestCoreDataManager()
+    var mockApiClient = MockGithubApiClient()
+    var mockCoreDataManager = MockCoreDataManager()
     var testDetailsViewModelDelegate = TestUserDetailsViewModelDelegate()
 
     let id = 1
@@ -44,12 +44,12 @@ class UserDetailsViewModelTests: XCTestCase {
             userCellVM = InvertedUserCellViewModel(invertedUser: user, unfilteredIndex: unfilteredIndex)
         }
 
-        testApiClient = TestGithubApiClient()
-        testCoreDataManager = TestCoreDataManager()
+        mockApiClient = MockGithubApiClient()
+        mockCoreDataManager = MockCoreDataManager()
         testDetailsViewModelDelegate = TestUserDetailsViewModelDelegate()
 
         let userdetailsVM = UserDetailsViewModel(cellViewModel: userCellVM, indexPath: visibleIndexPath,
-                                                 apiClient: testApiClient, coredataManager: testCoreDataManager)
+                                                 apiClient: mockApiClient, coredataManager: mockCoreDataManager)
         userdetailsVM.delegate = testDetailsViewModelDelegate
 
         return userdetailsVM
@@ -69,7 +69,7 @@ class UserDetailsViewModelTests: XCTestCase {
     func testLoadsDetailsForDefaultUser() {
         let userdetailsVM = createUserDetailsViewModel(userType: .DefaultUser, unfilteredIndex: 0, visibleIndex: 0)
         let userDetails = createUserDetailsFrom(userDetailsVM: userdetailsVM, following: 31, followers: 32)
-        testApiClient.fetchDetailsApiResult = Result.success(userDetails)
+        mockApiClient.fetchDetailsApiResult = Result.success(userDetails)
 
         userdetailsVM.fetchDetails()
 
@@ -79,7 +79,7 @@ class UserDetailsViewModelTests: XCTestCase {
     func testLoadsDetailsForNotesUser() {
         let userdetailsVM = createUserDetailsViewModel(userType: .NotesUser, unfilteredIndex: 0, visibleIndex: 0)
         let userDetails = createUserDetailsFrom(userDetailsVM: userdetailsVM, following: 3, followers: 322)
-        testApiClient.fetchDetailsApiResult = Result.success(userDetails)
+        mockApiClient.fetchDetailsApiResult = Result.success(userDetails)
 
         userdetailsVM.fetchDetails()
 
@@ -89,7 +89,7 @@ class UserDetailsViewModelTests: XCTestCase {
     func testLoadsDetailsForInvertedUserWithNotes() {
         let userdetailsVM = createUserDetailsViewModel(userType: .InvertedUser(note: defaultNotes), unfilteredIndex: 0, visibleIndex: 0)
         let userDetails = createUserDetailsFrom(userDetailsVM: userdetailsVM, following: 323, followers: 6572)
-        testApiClient.fetchDetailsApiResult = Result.success(userDetails)
+        mockApiClient.fetchDetailsApiResult = Result.success(userDetails)
 
         userdetailsVM.fetchDetails()
 

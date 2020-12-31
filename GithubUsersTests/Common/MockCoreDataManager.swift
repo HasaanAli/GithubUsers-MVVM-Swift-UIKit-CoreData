@@ -1,5 +1,5 @@
 //
-//  TestCoreDataManager.swift
+//  MockCoreDataManager.swift
 //  GithubUsersTests
 //
 //  Created by Hasaan Ali on 29/12/2020.
@@ -11,8 +11,8 @@
 import CoreData
 import UIKit
 
-class TestCoreDataManager: CoreDataManager {
-    let tag = "TestCoreDataManager"
+class MockCoreDataManager: CoreDataManager {
+    let tag = "MockCoreDataManager"
 
     override init() {
         super.init()
