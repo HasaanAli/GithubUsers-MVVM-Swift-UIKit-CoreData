@@ -41,7 +41,7 @@
 		053FE918258F9CC300A1ACC3 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */; };
 		053FE91A259047E300A1ACC3 /* UsersTableViewCellProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053FE919259047E300A1ACC3 /* UsersTableViewCellProtocol.swift */; };
 		05518ECA259CC3B500E6BC50 /* UsersViewModelFilterDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518EC9259CC3B400E6BC50 /* UsersViewModelFilterDataTests.swift */; };
-		05518ECD259CC4E100E6BC50 /* CommonTestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518ECC259CC4E100E6BC50 /* CommonTestData.swift */; };
+		05518ECD259CC4E100E6BC50 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518ECC259CC4E100E6BC50 /* TestData.swift */; };
 		05518ECF259CD6EE00E6BC50 /* ApiTestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518ECE259CD6EE00E6BC50 /* ApiTestData.swift */; };
 		05518ED2259CEE3C00E6BC50 /* UserDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518ED1259CEE3C00E6BC50 /* UserDetailsViewModelTests.swift */; };
 		05518ED5259CF72400E6BC50 /* TestUserDetailsViewModelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05518ED4259CF72400E6BC50 /* TestUserDetailsViewModelDelegate.swift */; };
@@ -53,6 +53,7 @@
 		05BFE59325918E3600BF4E48 /* NotesUserTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BFE59225918E3600BF4E48 /* NotesUserTableViewCell.swift */; };
 		05C87B78259365FA00398B81 /* Int+isForth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C87B77259365FA00398B81 /* Int+isForth.swift */; };
 		05F45B0A259DD075001C6102 /* CoreDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F45B09259DD075001C6102 /* CoreDataManagerTests.swift */; };
+		05F45B0D259DD520001C6102 /* TestCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F45B0C259DD520001C6102 /* TestCoreDataManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,7 +114,7 @@
 		053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		053FE919259047E300A1ACC3 /* UsersTableViewCellProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersTableViewCellProtocol.swift; sourceTree = "<group>"; };
 		05518EC9259CC3B400E6BC50 /* UsersViewModelFilterDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersViewModelFilterDataTests.swift; sourceTree = "<group>"; };
-		05518ECC259CC4E100E6BC50 /* CommonTestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTestData.swift; sourceTree = "<group>"; };
+		05518ECC259CC4E100E6BC50 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		05518ECE259CD6EE00E6BC50 /* ApiTestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiTestData.swift; sourceTree = "<group>"; };
 		05518ED1259CEE3C00E6BC50 /* UserDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailsViewModelTests.swift; sourceTree = "<group>"; };
 		05518ED4259CF72400E6BC50 /* TestUserDetailsViewModelDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUserDetailsViewModelDelegate.swift; sourceTree = "<group>"; };
@@ -125,6 +126,7 @@
 		05BFE59225918E3600BF4E48 /* NotesUserTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesUserTableViewCell.swift; sourceTree = "<group>"; };
 		05C87B77259365FA00398B81 /* Int+isForth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+isForth.swift"; sourceTree = "<group>"; };
 		05F45B09259DD075001C6102 /* CoreDataManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManagerTests.swift; sourceTree = "<group>"; };
+		05F45B0C259DD520001C6102 /* TestCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,16 +197,15 @@
 		05376412258D18BD001E028E /* GithubUsers */ = {
 			isa = PBXGroup;
 			children = (
-				05204C1625922F0200836DA6 /* Utilities */,
-				053FE914258F3E4C00A1ACC3 /* Persistence */,
 				053FE8F9258DA1F600A1ACC3 /* LaunchScreen.storyboard */,
 				05376413258D18BD001E028E /* AppDelegate.swift */,
+				05204C1625922F0200836DA6 /* Utilities */,
+				053FE914258F3E4C00A1ACC3 /* Persistence */,
 				053FE8F8258D302B00A1ACC3 /* Networking */,
 				053FE8F7258D2FE100A1ACC3 /* Controllers */,
 				053FE902258DA6C200A1ACC3 /* Models */,
 				05376444258D22E0001E028E /* Views */,
 				053FE8FC258DA23A00A1ACC3 /* Resources */,
-				0537641A258D18BE001E028E /* GithubUsers.xcdatamodeld */,
 			);
 			path = GithubUsers;
 			sourceTree = "<group>";
@@ -301,6 +302,7 @@
 			children = (
 				053FE915258F3E5B00A1ACC3 /* ImageCache.swift */,
 				053FE917258F9CC300A1ACC3 /* CoreDataManager.swift */,
+				0537641A258D18BE001E028E /* GithubUsers.xcdatamodeld */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -309,7 +311,7 @@
 			isa = PBXGroup;
 			children = (
 				05518ECE259CD6EE00E6BC50 /* ApiTestData.swift */,
-				05518ECC259CC4E100E6BC50 /* CommonTestData.swift */,
+				05518ECC259CC4E100E6BC50 /* TestData.swift */,
 				050AD197259C1A1700E30382 /* MockCoreDataManager.swift */,
 				050AD194259C1A1700E30382 /* MockGithubApiClient.swift */,
 			);
@@ -321,7 +323,7 @@
 			children = (
 				05518ED3259CEE9900E6BC50 /* UserDetailsViewModel */,
 				050AD193259C1A1700E30382 /* UsersViewModel */,
-				05F45B09259DD075001C6102 /* CoreDataManagerTests.swift */,
+				05F45B0B259DD513001C6102 /* CoreDataManager */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -344,6 +346,15 @@
 				05204C12259228A800836DA6 /* InvertedUserCellViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		05F45B0B259DD513001C6102 /* CoreDataManager */ = {
+			isa = PBXGroup;
+			children = (
+				05F45B09259DD075001C6102 /* CoreDataManagerTests.swift */,
+				05F45B0C259DD520001C6102 /* TestCoreDataManager.swift */,
+			);
+			path = CoreDataManager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -524,7 +535,8 @@
 			files = (
 				050AD19A259C1A1800E30382 /* TestUsersViewModelDelegate.swift in Sources */,
 				05518ECA259CC3B500E6BC50 /* UsersViewModelFilterDataTests.swift in Sources */,
-				05518ECD259CC4E100E6BC50 /* CommonTestData.swift in Sources */,
+				05F45B0D259DD520001C6102 /* TestCoreDataManager.swift in Sources */,
+				05518ECD259CC4E100E6BC50 /* TestData.swift in Sources */,
 				05518ECF259CD6EE00E6BC50 /* ApiTestData.swift in Sources */,
 				050AD19B259C1A1800E30382 /* MockCoreDataManager.swift in Sources */,
 				050AD199259C1A1800E30382 /* UsersViewModelLoadDataTests.swift in Sources */,
@@ -838,7 +850,8 @@
 				0537641B258D18BE001E028E /* GithubUsers.xcdatamodel */,
 			);
 			currentVersion = 0537641B258D18BE001E028E /* GithubUsers.xcdatamodel */;
-			path = GithubUsers.xcdatamodeld;
+			name = GithubUsers.xcdatamodeld;
+			path = ../GithubUsers.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

@@ -24,24 +24,10 @@ class UsersViewModelTests: XCTestCase {
         return uvm
     }()
 
-    override func setUp() {
-        super.setUp()
-        mockCoreDataManager = MockCoreDataManager()
-        mockApiClient = MockGithubApiClient()
-        testUVMDelegate = TestUsersViewModelDelegate()
-
-        usersViewModel = UsersViewModel(
-            apiPageSize: 5,
-            apiClient: mockApiClient,
-            coreDataManager: mockCoreDataManager
-        )
-        usersViewModel.delegate = testUVMDelegate
-    }
-
-    //MARK:- Load from Db and API tests
+    //MARK:- 'Load from Db and API' tests
 
     func testLoadsFromDatabaseFirstTime() {
-        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = TestData.usersWithImages
 
         usersViewModel.loadData()
 
@@ -50,7 +36,7 @@ class UsersViewModelTests: XCTestCase {
     }
 
     func testDoesnotLoadFromApiFirstTimeIfDBhasRecords() {
-        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = TestData.usersWithImages
 
         usersViewModel.loadData()
         XCTAssertFalse(mockApiClient.calledFetchUsers)
@@ -77,7 +63,7 @@ class UsersViewModelTests: XCTestCase {
     }
 
     func testInsertsApiRecordsToDatabase() {
-        let apiUsers: [User] = CommonTestData.defaultUsers
+        let apiUsers: [User] = TestData.defaultUsers
         mockApiClient.fetchUsersResult = Result.success(apiUsers)
         mockApiClient.fetchImageResult = ApiTestData.fetchImageSuccessResult
 
@@ -149,7 +135,7 @@ class UsersViewModelTests: XCTestCase {
     // MARK:- Loading images tests
 
     func testDoesnotFetchImagesFromApiIfNoMissingImageInDatabaseUsers() {
-        mockCoreDataManager.fetchAllUsersFixture = CommonTestData.usersWithImages
+        mockCoreDataManager.fetchAllUsersFixture = TestData.usersWithImages
 
         usersViewModel.loadData()
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.01)

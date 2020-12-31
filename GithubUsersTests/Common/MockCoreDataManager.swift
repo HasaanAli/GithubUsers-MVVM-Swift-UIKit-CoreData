@@ -6,7 +6,6 @@
 //  Copyright © 2020 Hasaan Ali. All rights reserved.
 //
 
-
 @testable import GithubUsers
 import CoreData
 import UIKit
@@ -39,12 +38,14 @@ class MockCoreDataManager: CoreDataManager {
 
     var lastInsertedUsers: [UserProtocol]?
 
-    override func insert(users: [UserProtocol]) {
+    @discardableResult
+    override func insert(users: [UserProtocol]) -> [UserEntity] {
         if lastInsertedUsers == nil {
             lastInsertedUsers = users
         } else { // twice insert detection
             lastInsertedUsers = nil
         }
+        return [UserEntity]()
     }
 
     var lastUpdatedUser: UserProtocol?

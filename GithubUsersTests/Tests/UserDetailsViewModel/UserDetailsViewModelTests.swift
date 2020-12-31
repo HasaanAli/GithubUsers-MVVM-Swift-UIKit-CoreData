@@ -19,7 +19,7 @@ class UserDetailsViewModelTests: XCTestCase {
     let login = "user1login"
     let avatarUrl = "user1url"
     let defaultNotes = "user1notes"
-    let image = CommonTestData.image
+    let image = TestData.image
 
     enum UserType {
         case DefaultUser
@@ -44,12 +44,10 @@ class UserDetailsViewModelTests: XCTestCase {
             userCellVM = InvertedUserCellViewModel(invertedUser: user, unfilteredIndex: unfilteredIndex)
         }
 
-        mockApiClient = MockGithubApiClient()
-        mockCoreDataManager = MockCoreDataManager()
-        testDetailsViewModelDelegate = TestUserDetailsViewModelDelegate()
-
-        let userdetailsVM = UserDetailsViewModel(cellViewModel: userCellVM, indexPath: visibleIndexPath,
-                                                 apiClient: mockApiClient, coredataManager: mockCoreDataManager)
+        let userdetailsVM = UserDetailsViewModel(
+            cellViewModel: userCellVM, indexPath: visibleIndexPath,
+            apiClient: mockApiClient, coredataManager: mockCoreDataManager
+        )
         userdetailsVM.delegate = testDetailsViewModelDelegate
 
         return userdetailsVM
@@ -315,9 +313,7 @@ class UserDetailsViewModelTests: XCTestCase {
         let actualUserBeforeSave = userdetailsVM.currentCellViewModel.userp as! InvertedUser // .DefaultUser above
         let actualUserCellVMBeforeSave = userdetailsVM.currentCellViewModel as! InvertedUserCellViewModel
 
-
         userdetailsVM.save(notes: newNotes)
-
 
         let expectedUser = actualUserBeforeSave.changing(notes: newNotes)
         let expectedUserCellVM = InvertedUserCellViewModel(invertedUser: expectedUser,
@@ -337,12 +333,6 @@ class UserDetailsViewModelTests: XCTestCase {
         XCTAssertNotNil(actualUserCellVM.userp as? InvertedUser)
         let actualUser = actualUserCellVM.userp as! InvertedUser
         XCTAssertEqual(actualUser, expectedUser)
-    }
-
-
-    func testUserDetailsVMKeepsCorrectPositioningInfo() {
-//        let userdetailsVM = createUserDetailsViewModel(userType: .DefaultUser, positionInData: 23, visiblePosition: 23)
-        //        assert(<#T##condition: Bool##Bool#>, <#T##message: String##String#>)
     }
 
     /**

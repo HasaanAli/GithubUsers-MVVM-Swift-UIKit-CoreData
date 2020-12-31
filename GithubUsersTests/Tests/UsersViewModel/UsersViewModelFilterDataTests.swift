@@ -10,7 +10,7 @@
 import XCTest
 
 class UsersViewModelFilterDataTests: XCTestCase {
-    let image = CommonTestData.image
+    let image = TestData.image
     lazy var users: [UserProtocol] =
         [User(id: 1, login: "user1login", avatarUrl: "user1url", image: image),
          NotesUser(id: 2, login: "Xuser2login", avatarUrl: "user2url", notes: "user2notes", image: image),
@@ -29,21 +29,9 @@ class UsersViewModelFilterDataTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        mockCoreDataManager = MockCoreDataManager()
-        mockApiClient = MockGithubApiClient()
-        testUVMDelegate = TestUsersViewModelDelegate()
-
-        usersViewModel = UsersViewModel(
-            apiPageSize: 5,
-            apiClient: mockApiClient,
-            coreDataManager: mockCoreDataManager
-        )
-        usersViewModel.delegate = testUVMDelegate
         mockCoreDataManager.fetchAllUsersFixture = users
         usersViewModel.loadData()
-
         wait(for: [testUVMDelegate.onCellViewModelsChangedExpec], timeout: 0.1) // due to loadData
-        //        testUVMDelegate.
     }
 
     func testFilterNoUser() {

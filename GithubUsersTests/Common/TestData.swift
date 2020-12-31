@@ -10,14 +10,34 @@
 import Foundation
 import UIKit
 
-class CommonTestData {
+class TestData {
     static let defaultUsers: [User] = {
+        return TestData.defaultUsers(startId: 0, count: 100)
+    }()
+
+    static func defaultUsers(startId: Int, count: Int, withImage: Bool = false) -> [User] {
         var users = [User]()
-        for i in 0..<100 {
-            users.append(User(id: i, login: "user\(i)login", avatarUrl: "user\(i)avatarurl"))
+        for i in startId..<(startId + count) {
+            var user = User(id: i, login: "user\(i)login", avatarUrl: "user\(i)avatarurl")
+            if withImage {
+                user.image = TestData.image
+            }
+            users.append(user)
         }
         return users
-    }()
+    }
+
+    static func notesUsers(startId: Int, count: Int, withImage: Bool = false) -> [NotesUser] {
+        var users = [NotesUser]()
+        for i in startId..<(startId + count) {
+            var notesuser = NotesUser(id: i, login: "user\(i)login", avatarUrl: "user\(i)avatarurl", notes: "user\(i)notes")
+            if withImage {
+                notesuser.image = TestData.image
+            }
+            users.append(notesuser)
+        }
+        return users
+    }
 
     static let dbUsersTestDataWithoutImages: [UserProtocol] = {
         var users = [UserProtocol]()
@@ -91,4 +111,10 @@ class CommonTestData {
         }
         return (users, missingImageIndices)
     }()
+
+//    static func user(withId id: Int, withImage: Bool = false) -> User {
+//        if withImage {
+//            return User(id: 1, login: "user1login", avatarUrl: "user1url")
+//        }
+//    }
 }

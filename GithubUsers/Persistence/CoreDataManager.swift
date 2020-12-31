@@ -68,24 +68,27 @@ class CoreDataManager {
     }
 
     /// Can be used from UI thread.
-    func insert(users: [UserProtocol]) {
-        writeContext.perform {
-            for userp in users {
-                let userObject = UserEntity(context: self.writeContext)
-                userObject.id = Int32(userp.id)
-                userObject.login = userp.login
-                userObject.avatarUrl = userp.avatarUrl
-                if let image = userp.image {
-                    userObject.imageData = image.jpegDataBetter
-                }
-                if let notesUser = userp as? NotesUser {
-                    userObject.notes = notesUser.notes
-                }
-            }// end for
-
-            NSLog("%@ - inserted users to writeContext")
-            self.saveChangesIfAny(synchronously: false)
+    @discardableResult
+    func insert(users: [UserProtocol]) -> [UserEntity] {
+        var entities: [UserEntity] = [UserEntity]()
+        for userp in users {
+            let userObject = UserEntity(context: self.writeContext)
+            userObject.id = Int32(userp.id)
+            userObject.login = userp.login
+            userObject.avatarUrl = userp.avatarUrl
+            if let image = userp.image {
+                userObject.imageData = image.jpegDataBetter
+            }
+            if let notesUser = userp as? NotesUser {
+                userObject.notes = notesUser.notes
+            }
+            entities.append(userObject)
         }
+
+        NSLog("%@ - inserted users to writeContext")
+        self.saveChangesIfAny(synchronously: false)
+
+        return entities
     }
 
     func fetchAllUsers() -> [UserProtocol]? {
@@ -134,51 +137,51 @@ class CoreDataManager {
     }
 
     func update(userp: UserProtocol) {
-        writeContext.perform {
-            let fetchRequest = NSFetchRequest<UserEntity>(entityName: CoreDataManager.userEntityName)
-            let predicate = NSPredicate(format: "\(CoreDataManager.userEntityKey_Id) == %d", userp.id)
-            fetchRequest.predicate = predicate
+        let fetchRequest = NSFetchRequest<UserEntity>(entityName: CoreDataManager.userEntityName)
+        let predicate = NSPredicate(format: "\(CoreDataManager.userEntityKey_Id) == %d", userp.id)
+        fetchRequest.predicate = predicate
 
-            do {
-                let fetchedEntities = try self.writeContext.fetch(fetchRequest)
+        do {
+            let fetchedEntities = try self.writeContext.fetch(fetchRequest)
 
-                guard fetchedEntities.count == 1 else {
-                    NSLog("%@ - ALARM !!! - update() fetched \(fetchedEntities.count) entities, returning", self.tag)
-                    return
-                }
-
-                guard let userEntity = fetchedEntities.first else {
-                    NSLog("%@ - update() - fetchedEntities.first is nil, returning", self.tag)
-                    return
-                }
-
-                userEntity.login = userp.login
-                userEntity.avatarUrl = userp.avatarUrl
-                if let image = userp.image {
-                    let imageData = image.jpegDataBetter
-                    userEntity.imageData = imageData
-                }
-
-                switch userp {
-                case is User:
-                    userEntity.notes = nil
-                case let invertedUser as InvertedUser:
-                    userEntity.notes = invertedUser.notes
-                case let notesUser as NotesUser:
-                    userEntity.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
-                default:
-                    NSLog("%@ - update() - switch userp default case run !!", self.tag)
-                }
-                NSLog("%@ - Updated userEntity", self.tag)
-            } catch let error as NSError {
-                NSLog("%@ update() - Failed. Error: \(error)", self.tag)
+            guard fetchedEntities.count == 1 else {
+                NSLog("%@ - ALARM !!! - update() fetched \(fetchedEntities.count) entities, returning", self.tag)
+                return
             }
 
-            // Save changes if never saved or not saved in the last 30 seconds
-            if self.lastSaved == nil || Date().timeIntervalSince(self.lastSaved!) > 30 {
-                self.saveChangesIfAny(synchronously: false)
+            guard let userEntity = fetchedEntities.first else {
+                NSLog("%@ - update() - fetchedEntities.first is nil, returning", self.tag)
+                return
             }
+
+            userEntity.login = userp.login
+            userEntity.avatarUrl = userp.avatarUrl
+            if let image = userp.image {
+                let imageData = image.jpegDataBetter
+                userEntity.imageData = imageData
+            }
+
+            switch userp {
+            case is User:
+                userEntity.notes = nil
+            case let invertedUser as InvertedUser:
+                userEntity.notes = invertedUser.notes
+            case let notesUser as NotesUser:
+                userEntity.notes = notesUser.notes.isEmpty ? nil :  notesUser.notes
+            default:
+                NSLog("%@ - update() - switch userp default case run !!", self.tag)
+            }
+            NSLog("%@ - Updated userEntity", self.tag)
+        } catch let error as NSError {
+            NSLog("%@ update() - Failed. Error: \(error)", self.tag)
         }
+
+        // Save changes if never saved or not saved in the last 30 seconds
+        if self.lastSaved == nil || Date().timeIntervalSince(self.lastSaved!) > 30 {
+            self.saveChangesIfAny(synchronously: false)
+        }
+        //        //Schedule auto save
+        //        writeContext.perform(<#T##aSelector: Selector##Selector#>, with: <#T##Any?#>, afterDelay: <#T##TimeInterval#>)
     }
 
 }

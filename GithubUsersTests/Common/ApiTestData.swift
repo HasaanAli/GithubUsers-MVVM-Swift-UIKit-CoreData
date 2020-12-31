@@ -10,6 +10,6 @@
 import Foundation
 
 class ApiTestData {
-    static let fetchImageSuccessResult: Result<Data, DataResponseError> = Result.success(CommonTestData.image.jpegDataBetter!)
-    static let fetchUsersSuccessResult: Result<[User], DataResponseError> = Result.success(CommonTestData.defaultUsers)
+    static let fetchImageSuccessResult: Result<Data, DataResponseError> = Result.success(TestData.image.jpegDataBetter!)
+    static let fetchUsersSuccessResult: Result<[User], DataResponseError> = Result.success(TestData.defaultUsers)
 }
