@@ -38,7 +38,7 @@ class CoreDataManagerTests: XCTestCase {
             user = defaultUsers[i]
             entity = userEntities[i]
 
-            XCTAssertEqual(entity.id, Int32(user.id)) //TODO:64
+            XCTAssertEqual(entity.id, Int32(user.id))
             XCTAssertEqual(entity.login, user.login)
             XCTAssertEqual(entity.avatarUrl, user.avatarUrl)
             XCTAssertNil(entity.notes)
@@ -242,7 +242,14 @@ class CoreDataManagerTests: XCTestCase {
         }
     }
 
+    // MARK:- Update tests
 
+    /**
+update triggers save, think save logic on update
+     test updating user
+     */
+
+    // MARK:-
     /**
      TODOs:
      test insert detects/skips duplicate id users

@@ -13,9 +13,9 @@ struct UserDetails: Decodable, UserProtocol, Equatable {
     let login: String
     let avatarUrl: String
     var notes: String = ""
-    var image: UIImage? = nil
-    var followers: Int? = nil
-    var following: Int? = nil
+    var image: UIImage?
+    var followers: Int?
+    var following: Int?
 
     var bio: String { //TODO use more properties
         return "name: \n company: \n"

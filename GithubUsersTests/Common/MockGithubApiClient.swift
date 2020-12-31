@@ -17,7 +17,8 @@ class MockGithubApiClient: GithubApiClient {
     override func fetchUsers(since: Int, perPage: Int, completion: @escaping (Result<[User], DataResponseError>) -> Void) {
         calledFetchUsers = true
         guard let result = fetchUsersResult else {
-            fatalError("Must set fetchUsersResult")
+            XCTFail("Must set fetchUsersResult")
+            return
         }
         completion(result)
         fetchUsersExpectation?.fulfill()
@@ -32,7 +33,8 @@ class MockGithubApiClient: GithubApiClient {
         calledFetchImage = true
         calledFetchImageWithUrlString = urlString
         guard let result = fetchImageResult else {
-            fatalError("Must set fetchImageResult")
+            XCTFail("Must set fetchImageResult")
+            return
         }
         completion(result)
         fetchImageExpectation?.fulfill()

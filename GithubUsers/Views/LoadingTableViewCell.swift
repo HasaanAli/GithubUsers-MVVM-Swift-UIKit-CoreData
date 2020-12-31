@@ -10,7 +10,7 @@ import UIKit
 
 class LoadingTableViewCell: UITableViewCell {
     static let CellIdentifier = "LoadingTableViewCell"
-    var indicatorView: UIActivityIndicatorView? = nil
+    var indicatorView: UIActivityIndicatorView?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

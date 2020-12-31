@@ -12,7 +12,7 @@ struct NotesUser: UserProtocol, Equatable {
     let id: Int
     let login: String
     let avatarUrl: String
-    var image: UIImage? = nil // initially nil, will be set outside
+    var image: UIImage? // initially nil, will be set outside
     var notes: String // Empty string = No notes, local property, not in Api
 
     init(id: Int, login: String, avatarUrl: String, notes: String, image: UIImage? = nil) {

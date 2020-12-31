@@ -27,7 +27,7 @@ class UserDetailsViewModelTests: XCTestCase {
         case InvertedUser(note: String)
     }
 
-    /// Behaves like setup method
+    /// Used for setup
     func createUserDetailsViewModel(userType: UserType, unfilteredIndex: Int, visibleIndex: Int) -> UserDetailsViewModel {
         let visibleIndexPath = IndexPath(row: visibleIndex, section: 0)
 
@@ -238,8 +238,9 @@ class UserDetailsViewModelTests: XCTestCase {
         userdetailsVM.save(notes: newNotes)
 
         let expectedUser = User(notesUser: actualUserBeforeSave)
-        let expectedUserCellVM = DefaultUserCellViewModel(user: expectedUser,
-                                                        unfilteredIndex: actualUserCellVMBeforeSave.unfilteredIndex)
+        let expectedUserCellVM = DefaultUserCellViewModel(
+            user: expectedUser,
+            unfilteredIndex: actualUserCellVMBeforeSave.unfilteredIndex)
 
         // force-unwrap because it must have been set in createUserDetailsViewModel
         let testDelegate = userdetailsVM.delegate as! TestUserDetailsViewModelDelegate
@@ -274,7 +275,6 @@ class UserDetailsViewModelTests: XCTestCase {
         let actualUserBeforeSave = userdetailsVM.currentCellViewModel.userp as! InvertedUser // .DefaultUser above
         let actualUserCellVMBeforeSave = userdetailsVM.currentCellViewModel as! InvertedUserCellViewModel
 
-
         userdetailsVM.save(notes: sameInitialAndNewNotes)
 
         // force-unwrap because it must have been set in createUserDetailsViewModel
@@ -306,7 +306,6 @@ class UserDetailsViewModelTests: XCTestCase {
         verifySavingDifferentNotesToInvertedUser(initialNotes: "someintialnotes", newNotes: "somenewnotes")
     }
 
-
     func verifySavingDifferentNotesToInvertedUser(initialNotes: String, newNotes: String) {
         XCTAssertNotEqual(initialNotes, newNotes, "this method should be used only for changing notes scenarios")
         let userdetailsVM = createUserDetailsViewModel(userType: .InvertedUser(note: initialNotes), unfilteredIndex: 3, visibleIndex: 3) //forth index
@@ -315,9 +314,15 @@ class UserDetailsViewModelTests: XCTestCase {
 
         userdetailsVM.save(notes: newNotes)
 
-        let expectedUser = actualUserBeforeSave.changing(notes: newNotes)
-        let expectedUserCellVM = InvertedUserCellViewModel(invertedUser: expectedUser,
-                                                        unfilteredIndex: actualUserCellVMBeforeSave.unfilteredIndex)
+        let expectedUser: InvertedUser = {
+            var user = actualUserBeforeSave
+            user.notes = newNotes
+            return user
+        }()
+
+        let expectedUserCellVM = InvertedUserCellViewModel(
+            invertedUser: expectedUser,
+            unfilteredIndex: actualUserCellVMBeforeSave.unfilteredIndex)
 
         // force-unwrap because it must have been set in createUserDetailsViewModel
         let testDelegate = userdetailsVM.delegate as! TestUserDetailsViewModelDelegate

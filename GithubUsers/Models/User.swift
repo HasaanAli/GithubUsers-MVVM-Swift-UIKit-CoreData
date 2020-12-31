@@ -12,7 +12,7 @@ struct User: Decodable, UserProtocol, Equatable {
     let id: Int
     let login: String
     let avatarUrl: String
-    var image: UIImage? = nil // initially nil, will be set outside
+    var image: UIImage? // initially nil, will be set outside
 
     enum CodingKeys: String, CodingKey {
         case id

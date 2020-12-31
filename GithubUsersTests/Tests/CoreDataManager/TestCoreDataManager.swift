@@ -8,7 +8,7 @@
 
 @testable import GithubUsers
 import CoreData
-import UIKit
+import XCTest
 
 class TestCoreDataManager: CoreDataManager {
     let tag = String(describing: TestCoreDataManager.self)
@@ -22,9 +22,13 @@ class TestCoreDataManager: CoreDataManager {
         container.persistentStoreDescriptions = [inMemoryStoreDesc]
         container.loadPersistentStores { storeDesc, error in
             if let error = error as NSError? {
-                fatalError("Error at loading In-Memory store: \(error)")
+                XCTFail("Error at loading In-Memory store: \(error)")
             }
         }
-        persistentContainer = container // Useful when we're testing core data stack itself
+
+        // VERY IMPORTANT! so that test data doesnot get into sqlite db.
+        // ! ! ! ! ! ! ! ! ! ! ! ! ! ! //
+        persistentContainer = container
+        // ! ! ! ! ! ! ! ! ! ! ! ! ! ! //
     }
 }

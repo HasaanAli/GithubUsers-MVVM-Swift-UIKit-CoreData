@@ -16,7 +16,7 @@ class CoreDataManager {
     static let userEntityKey_Id = "id"
 
     ///Last time update(user:) was called.
-    private var lastSaved: Date? = nil
+    private var lastSaved: Date?
 
     init() {}
 
