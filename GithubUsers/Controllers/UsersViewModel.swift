@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol UsersViewModelDelegate: AnyObject {
     func onCellViewModelsChanged()
@@ -19,6 +20,8 @@ protocol UsersViewModelDelegate: AnyObject {
 
 ///View model for UsersViewController.
 final class UsersViewModel {
+    var set = Set<AnyCancellable>()
+
     private let apiPageSize: Int
     /// Unfiltered array of cell view models. Use cellViewModel(at:) to get filtered cellViewModel, when applicable.
     private var ufCellViewModels: [UserCellViewModelProtocol]
@@ -109,6 +112,45 @@ final class UsersViewModel {
         } else { // db gave nil or zero records
             loadUsersFromAPI()
         }
+    }
+
+    func newLoadUsersFromNewAPI() {
+        let lastMaxUserId = maxUserId
+
+        NewGithubApiClient.fetchUsers(since: lastMaxUserId, perPage: apiPageSize)
+        .sink(receiveCompletion: { obj in
+            print(obj)
+        }, receiveValue: { newUsers in
+            self.isFetchInProgress = false
+
+            guard newUsers.count > 0 else { // we reached end of data
+                NSLog("loadUsersFromApi - success but no new user since=\(lastMaxUserId)")
+                self.delegate?.onNoDataChanged() // Inform delegate
+                return
+            }
+            // We have got new data
+
+            // for inverted user cell view models, and for index passing in cell view model.
+            var index = self.ufCellViewModels.count // Not 0
+
+            for user in newUsers {
+                if index.isForth { // make inverted cell view model for every forth row
+                    let invertedUser = InvertedUser(id: user.id, login: user.login, avatarUrl: user.avatarUrl, image: user.image)
+                    let invertedUserCellViewModel = InvertedUserCellViewModel(invertedUser: invertedUser, unfilteredIndex: index)
+                    self.ufCellViewModels.append(invertedUserCellViewModel)
+                } else {
+                    let defaultUserCellViewModel = DefaultUserCellViewModel(user: user, unfilteredIndex: index)
+                    self.ufCellViewModels.append(defaultUserCellViewModel)
+                }
+                index += 1
+            }
+
+            self.coredataManager.insert(users: newUsers) //Save to db.
+            self.delegate?.onCellViewModelsChanged()
+            let newIndexPaths = self.calculateIndexPathsToReload(appendCount: newUsers.count)
+            self.loadImages(forUsersAtIndexPaths: newIndexPaths)
+        })
+        .store(in: &set)
     }
 
     private func loadUsersFromAPI() {
