@@ -1,4 +1,4 @@
-# GithubUsers
+# GithubUsers - MVVM-Swift-UIKit-CoreData
 
 A simple app which uses Github's REST api to show the list of github users.
 
