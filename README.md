@@ -14,5 +14,5 @@ It allows searching/filtering of table data. Tapping a row would show the detail
 7. Extensive **unit tests** for business logic and coredata with In-Memory database store.
 
 **Demo**
-![Alt text](demo.gif?raw=true "Demo")
+![Alt text](demo.gif?raw=true)
 
