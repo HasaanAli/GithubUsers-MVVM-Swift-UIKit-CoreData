@@ -4,6 +4,8 @@ A tiny app which uses Github's REST api to show the list of github users.
 
 It allows searching/filtering of table data. Tapping a row would show the detail screen with additional info.
 
+![Alt text](demo.gif?raw=true "Demo")
+
 **Noticeable items**
 1. **Swift 5** with iOS 13, UIKit, AutoLayout.
 2. It uses **protocols** for list items. 
