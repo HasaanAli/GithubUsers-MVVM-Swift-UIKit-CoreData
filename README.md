@@ -4,8 +4,6 @@ A tiny app which uses Github's REST api to show the list of github users.
 
 It allows searching/filtering of table data. Tapping a row would show the detail screen with additional info.
 
-![Alt text](demo.gif?raw=true "Demo")
-
 **Noticeable items**
 1. **Swift 5** with iOS 13, UIKit, AutoLayout.
 2. It uses **protocols** for list items. 
@@ -14,4 +12,7 @@ It allows searching/filtering of table data. Tapping a row would show the detail
 5. **Coredata** for persisting users items fetched from API. Two contexts are used: main and background context.
 6. Handle no **internet scenario & automatic retry** data once the connection is available.
 7. Extensive **unit tests** for business logic and coredata with In-Memory database store.
+
+**Demo**
+![Alt text](demo.gif?raw=true "Demo")
 
